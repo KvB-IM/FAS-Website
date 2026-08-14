@@ -94,17 +94,26 @@ These are the placeholders and open items in the current build:
   footer were written to match the deck's stated requirement. Have whoever handles
   your advertising compliance read them before launch.
 
-## Lead-count inconsistency carried over from the deck
+## Lead numbers
 
-The deck said two different things: the package slides and pricing slide say **50
-leads at launch** with reorders at $50/lead, while the CRM slide and the economics
-chart assume **100 leads per month**.
+The deck said two different things: the package and pricing slides say **50 leads at
+launch** with reorders at $50/lead, while the CRM slide and the economics chart
+assumed **100 leads per month**.
 
-This site treats **50-at-launch plus reorders** as the offer, and the economics
-section on `pricing.html` states its assumption explicitly ("a working pipeline of
-100 leads per month — 50 delivered with your launch package, with additional leads
-ordered at $50 each"). If the real offer is a recurring 100/month, update
-`pricing.html` and the lead copy on `program.html` and `index.html` to match.
+The site now uses one figure throughout: **50 leads delivered with the launch
+package, reordered at $50/lead pass-through, 50-lead minimum.** The 100/month
+assumption is gone.
+
+The economics scenarios on `pricing.html` are driven by **rollovers closed per month**
+(2 / 3 / 4), not by a lead volume — so the $216K / $324K / $432K figures stand on
+their own and don't depend on any particular pipeline size. If you later settle on a
+recurring monthly lead count, the places to update are:
+
+- `pricing.html` — the "Lead Supply" tile in the economics section and the footnote below the chart
+- `pricing.html` — the "Additional Leads" price card
+- `program.html` — the "50 Fresh Federal Leads" section
+- `index.html` — the hero, the trust strip, the solution and component cards, and the meta description
+- `apply.html` — step 03 and the meta description
 
 ---
 
