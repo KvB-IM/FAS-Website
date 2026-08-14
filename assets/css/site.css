@@ -134,6 +134,20 @@ strong {
   color: var(--navy);
 }
 
+/* On dark grounds the navy `strong` colour disappears — reclaim it. */
+.hero strong,
+.section--navy strong,
+.card--dark strong,
+.fit-panel--yes strong,
+.price-card--feature strong,
+.cta-band strong,
+.site-footer strong,
+.fact--navy strong,
+.fact--mid strong,
+.mockup__hero strong {
+  color: var(--white);
+}
+
 em {
   font-style: italic;
 }
@@ -1423,6 +1437,18 @@ hr {
   font-weight: 700;
   font-size: 0.98rem;
   color: var(--navy);
+}
+
+@media (max-width: 560px) {
+  .chart {
+    padding: 26px 18px 20px;
+  }
+  .chart__plot {
+    height: 280px;
+  }
+  .chart__labels span {
+    font-size: 0.8rem;
+  }
 }
 
 .econ-facts {
