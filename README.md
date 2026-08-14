@@ -37,16 +37,19 @@ build step, so **a change to the nav or footer has to be made in all six files.*
 Vercel installs `@neondatabase/serverless` from `package.json` for the `/api`
 functions and serves everything else as static files.
 
-### Connecting the database
+### The database
 
-The application form posts to `/api/apply`, which writes to Postgres.
+The application form posts to `/api/apply`, which writes to a Neon Postgres
+database. The database is already provisioned and the `partner_applications`
+table already exists.
 
-1. Vercel dashboard → your project → **Storage** → **Create Database** → **Neon (Postgres)**.
-2. Connect it to the project. Vercel sets `DATABASE_URL` automatically.
-3. Redeploy.
+The handler reads `POSTGRES_URL || DATABASE_URL` — Vercel's Neon integration sets
+both when the database is attached to the project, so no manual configuration is
+needed as long as the storage integration is connected. `/api/apply` also
+re-creates the table if it is ever missing, so there is no migration step.
 
-The `partner_applications` table is created automatically on the first submission —
-no migration to run.
+**Never commit a connection string.** It belongs only in Vercel's environment
+variables. `.env` and `.env*.local` are gitignored.
 
 **Nothing is lost if the database is missing or down.** `/api/apply` falls back to
 writing the full submission to the function log as a single line beginning
@@ -68,7 +71,7 @@ than the default 200. Without `ADMIN_TOKEN` set, the endpoint refuses every requ
 
 | Name | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | Set automatically by the Vercel Postgres/Neon integration | Where applications are stored |
+| `POSTGRES_URL` or `DATABASE_URL` | Set automatically by the Vercel Neon integration | Where applications are stored |
 | `ADMIN_TOKEN` | Only to use `/api/leads` | Shared secret for reading applications back |
 
 ---

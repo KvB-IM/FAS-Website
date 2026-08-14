@@ -1,44 +1,29 @@
-/**
- * POST /api/apply
- *
- * Receives a partner application from apply.html and stores it in Postgres.
- *
- * Environment (set in Vercel → Project → Settings → Environment Variables):
- *   DATABASE_URL   Postgres connection string. Vercel's Neon integration sets
- *                  DATABASE_URL / POSTGRES_URL automatically when you attach a
- *                  database to the project — either name works.
- *
- * If no database is configured (or the insert fails) the submission is still
- * accepted and written to the function log as a single JSON line prefixed with
- * "APPLICATION_FALLBACK" so nothing is ever silently lost. Look for it under
- * Vercel → Project → Logs.
- */
+// POST /api/apply — partner agent application intake.
+//
+// Stores each submission in Postgres (Neon). Mirrors the conventions used by
+// the FB-Website API: CommonJS, POSTGRES_URL || DATABASE_URL, and a database
+// failure is never allowed to lose a lead.
+//
+// Environment (Vercel → Project → Settings → Environment Variables):
+//   POSTGRES_URL / DATABASE_URL   Neon connection string. Vercel's Neon
+//                                 integration sets both automatically.
+//
+// If the database is unreachable the submission is still accepted and written
+// to the function log as one JSON line prefixed "APPLICATION_FALLBACK", so it
+// can always be recovered from Vercel → Project → Logs.
+const { neon } = require('@neondatabase/serverless');
 
-import { neon } from '@neondatabase/serverless';
+function getDb() {
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.warn('No POSTGRES_URL or DATABASE_URL configured.');
+    return null;
+  }
+  return neon(connectionString);
+}
 
-const CONNECTION_STRING =
-  process.env.DATABASE_URL ||
-  process.env.POSTGRES_URL ||
-  process.env.POSTGRES_URL_NON_POOLING ||
-  '';
-
-/* Fields we accept. Anything else in the payload is ignored. */
-const FIELDS = [
-  'firstName',
-  'lastName',
-  'email',
-  'phone',
-  'state',
-  'licensed',
-  'experience',
-  'federalExperience',
-  'timeline',
-  'notes',
-  'consent',
-  'page'
-];
-
-const MAX_LENGTH = {
+// Accepted fields, with the maximum length stored for each.
+const FIELDS = {
   firstName: 120,
   lastName: 120,
   email: 250,
@@ -49,14 +34,13 @@ const MAX_LENGTH = {
   federalExperience: 120,
   timeline: 60,
   notes: 4000,
-  consent: 10,
   page: 200
 };
 
-let schemaReady = false;
+let tableReady = false;
 
-async function ensureSchema(sql) {
-  if (schemaReady) return;
+async function ensureTable(sql) {
+  if (tableReady) return;
   await sql`
     CREATE TABLE IF NOT EXISTS partner_applications (
       id                 BIGSERIAL PRIMARY KEY,
@@ -81,7 +65,7 @@ async function ensureSchema(sql) {
     CREATE INDEX IF NOT EXISTS partner_applications_created_at_idx
       ON partner_applications (created_at DESC)
   `;
-  schemaReady = true;
+  tableReady = true;
 }
 
 function clean(value, limit) {
@@ -89,7 +73,7 @@ function clean(value, limit) {
   return value.trim().slice(0, limit);
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
@@ -99,7 +83,7 @@ export default async function handler(req, res) {
   if (typeof payload === 'string') {
     try {
       payload = JSON.parse(payload);
-    } catch {
+    } catch (err) {
       return res.status(400).json({ error: 'Invalid JSON body' });
     }
   }
@@ -107,14 +91,14 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing body' });
   }
 
-  /* Honeypot — real people never fill this in. Accept quietly, store nothing. */
+  // Honeypot — real people never fill this in. Accept quietly, store nothing.
   if (clean(payload.company, 200)) {
     return res.status(200).json({ ok: true });
   }
 
   const data = {};
-  for (const field of FIELDS) {
-    data[field] = clean(payload[field], MAX_LENGTH[field] || 250);
+  for (const field of Object.keys(FIELDS)) {
+    data[field] = clean(payload[field], FIELDS[field]);
   }
 
   const missing = ['firstName', 'lastName', 'email', 'phone'].filter((f) => !data[f]);
@@ -132,17 +116,21 @@ export default async function handler(req, res) {
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded || '').split(',')[0].trim();
   const userAgent = clean(req.headers['user-agent'], 400);
 
-  if (!CONNECTION_STRING) {
-    console.warn(
-      'APPLICATION_FALLBACK ' +
-        JSON.stringify({ reason: 'no DATABASE_URL configured', ...data, ip })
-    );
+  // Only ever called when the row could not be stored. It deliberately writes
+  // the applicant's details to the log — that is the recovery copy — so it must
+  // not be used on the success path, where the same data would be PII in logs
+  // for no reason.
+  const fallback = (reason) =>
+    console.error('APPLICATION_FALLBACK ' + JSON.stringify(Object.assign({ reason: reason }, data, { ip: ip })));
+
+  const sql = getDb();
+  if (!sql) {
+    fallback('no POSTGRES_URL or DATABASE_URL configured');
     return res.status(200).json({ ok: true, stored: false });
   }
 
   try {
-    const sql = neon(CONNECTION_STRING);
-    await ensureSchema(sql);
+    await ensureTable(sql);
     const rows = await sql`
       INSERT INTO partner_applications
         (first_name, last_name, email, phone, state, licensed, experience,
@@ -155,10 +143,11 @@ export default async function handler(req, res) {
          ${ip || null}, ${userAgent || null})
       RETURNING id
     `;
+    console.log('Partner application stored, id=' + rows[0].id);
     return res.status(200).json({ ok: true, stored: true, id: rows[0].id });
   } catch (err) {
-    /* Never lose a lead to a database problem — log it and accept. */
-    console.error('APPLICATION_FALLBACK ' + JSON.stringify({ reason: String(err), ...data, ip }));
+    // A database problem must never cost us the lead.
+    fallback(err.message);
     return res.status(200).json({ ok: true, stored: false });
   }
-}
+};

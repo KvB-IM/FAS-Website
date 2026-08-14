@@ -1,29 +1,14 @@
-/**
- * GET /api/leads
- *
- * Reads back the partner applications stored by /api/apply so you can pull them
- * without opening a database console.
- *
- * Auth: send the shared secret either as a header or a query string —
- *   curl -H "x-admin-token: YOUR_TOKEN" https://your-site/api/leads
- *   https://your-site/api/leads?token=YOUR_TOKEN&format=csv
- *
- * Environment:
- *   ADMIN_TOKEN   Required. If unset, this endpoint refuses every request.
- *   DATABASE_URL  Same connection string used by /api/apply.
- *
- * Query params:
- *   format=json|csv   (default json)
- *   limit=1..1000     (default 200)
- */
-
-import { neon } from '@neondatabase/serverless';
-
-const CONNECTION_STRING =
-  process.env.DATABASE_URL ||
-  process.env.POSTGRES_URL ||
-  process.env.POSTGRES_URL_NON_POOLING ||
-  '';
+// GET /api/leads — read back the applications stored by /api/apply.
+//
+//   curl -H "x-admin-token: YOUR_TOKEN" https://your-site/api/leads
+//   https://your-site/api/leads?token=YOUR_TOKEN&format=csv
+//
+// Environment:
+//   ADMIN_TOKEN                   Required. Without it every request is refused.
+//   POSTGRES_URL / DATABASE_URL   Same connection string used by /api/apply.
+//
+// Query params: format=json|csv (default json), limit=1..1000 (default 200).
+const { neon } = require('@neondatabase/serverless');
 
 const COLUMNS = [
   'id',
@@ -54,7 +39,15 @@ function toCsv(rows) {
   return lines.join('\n');
 }
 
-export default async function handler(req, res) {
+// Constant-time-ish compare so the token can't be guessed byte by byte.
+function tokensMatch(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ error: 'Method not allowed' });
@@ -66,19 +59,22 @@ export default async function handler(req, res) {
   }
 
   const url = new URL(req.url, 'http://localhost');
-  const supplied = req.headers['x-admin-token'] || url.searchParams.get('token') || '';
-  if (supplied !== expected) {
+  const header = req.headers['x-admin-token'];
+  const supplied = (Array.isArray(header) ? header[0] : header) || url.searchParams.get('token') || '';
+  if (!tokensMatch(supplied, expected)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  if (!CONNECTION_STRING) {
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!connectionString) {
     return res.status(503).json({ error: 'No database configured on this deployment.' });
   }
 
-  const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1), 1000);
+  const requested = parseInt(url.searchParams.get('limit') || '200', 10);
+  const limit = Math.min(Math.max(isNaN(requested) ? 200 : requested, 1), 1000);
 
   try {
-    const sql = neon(CONNECTION_STRING);
+    const sql = neon(connectionString);
     const rows = await sql`
       SELECT id, created_at, first_name, last_name, email, phone, state, licensed,
              experience, federal_experience, timeline, notes, source_page
@@ -97,7 +93,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ count: rows.length, applications: rows });
   } catch (err) {
-    console.error('LEADS_READ_ERROR', err);
+    console.error('LEADS_READ_ERROR', err.message);
     return res.status(500).json({ error: 'Could not read applications.' });
   }
-}
+};
