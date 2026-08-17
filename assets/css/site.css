@@ -1872,9 +1872,25 @@ hr {
    -------------------------------------------------------------------------- */
 .split--hero-form {
   align-items: start;
+  /* Narrower than the default .split gap: at ~1100px that clawed back around
+     55px, all of which the form column needs more than the whitespace does. */
+  gap: clamp(28px, 3vw, 52px);
 }
 
-@media (min-width: 900px) {
+/* .split pairs its columns from 900px, but at 900-1040px that leaves the form
+   column under ~420px — too narrow to pair fields, so it stacks and turns into
+   a tall thin strip. Hold the hero stacked through that band instead, with the
+   card capped so it doesn't sprawl across the full page. */
+@media (min-width: 900px) and (max-width: 1039px) {
+  .split--hero-form {
+    grid-template-columns: 1fr;
+  }
+  .split--hero-form .hero__form {
+    max-width: 680px;
+  }
+}
+
+@media (min-width: 1040px) {
   .split--hero-form {
     grid-template-columns: 1fr 1fr;
   }
@@ -1907,21 +1923,42 @@ hr {
 }
 
 .hero__form-note {
-  color: var(--muted);
-  font-size: 0.87rem;
-  line-height: 1.55;
+  /* --muted is too light for small text on the white card. */
+  color: #3d4854;
+  font-size: 0.92rem;
+  line-height: 1.6;
   margin: 0 0 22px;
 }
 
-/* The two-column field grid is keyed to viewport width, not container width,
-   so inside this narrower column it has to be held back until there is really
-   room for two inputs side by side. */
-.hero__form .form-grid--2 {
-  grid-template-columns: 1fr;
-  gap: 16px;
+/* Same reason — the hint under the submit button sits on white too. */
+.hero__form .field__hint {
+  color: #4a5563;
 }
 
+/* The shared .form-grid--2 goes two-up at a 640px *viewport*, which says
+   nothing about how wide this card actually is. Ask the card instead: it is a
+   query container, so the fields pair up whenever there is genuinely room,
+   at every viewport width. Without this the card is ~440px yet fully stacked
+   between 900px and 1140px, which is what made it look thin on a laptop. */
+.hero__form {
+  container-type: inline-size;
+  container-name: heroform;
+}
+
+.hero__form .form-grid--2 {
+  grid-template-columns: 1fr;
+  gap: 16px 18px;
+}
+
+/* Viewport fallback first, for browsers without container queries... */
 @media (min-width: 1140px) {
+  .hero__form .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ...then the container query, which wins wherever it is supported. */
+@container heroform (min-width: 400px) {
   .hero__form .form-grid--2 {
     grid-template-columns: 1fr 1fr;
   }
