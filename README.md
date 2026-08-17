@@ -51,6 +51,28 @@ A Zoho failure can never affect whether the application was saved, whether the
 applicant sees success, or how long they wait beyond the CRM timeout. It is
 recorded on the row and retried later — see **The Zoho CRM mirror** below.
 
+### Caching — read this before wondering why a CSS change didn't show up
+
+`vercel.json` used to cache **everything** under `/assets/` for a year with
+`immutable`. Since `site.css` and `site.js` never change filename, that meant a
+returning visitor's browser would not even check for a new version — every
+style or script change was invisible to them, potentially for a year, while
+looking fine in a fresh browser or a private window.
+
+That is now split:
+
+| Path | Policy | Why |
+|---|---|---|
+| `/assets/img/(.*)` | 1 year, `immutable` | Images don't change; rename the file if one does |
+| `/assets/(css\|js)/(.*)` | `max-age=300, must-revalidate` | An edit goes live within 5 minutes, no version bump needed |
+
+The `?v=` query string on the `site.css` / `site.js` links in all six pages
+exists to break browsers out of the old year-long `immutable` cache. Once
+everyone has loaded a page since that change they no longer strictly need it,
+but bumping it is still the one reliable way to force a stylesheet refresh for
+everybody at once — and it's cheap. **If you change the version, change it in
+all six HTML files.**
+
 ### The database
 
 The application form posts to `/api/apply`, which writes to a Neon Postgres
