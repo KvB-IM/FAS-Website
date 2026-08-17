@@ -1863,3 +1863,66 @@ hr {
     transform: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   21. Hero application form
+   The form replaced the portrait in the hero, so it is a white card sitting on
+   navy. Two things follow from that: text inside must not inherit the hero's
+   light colour, and the column is far narrower than a full-width form section.
+   -------------------------------------------------------------------------- */
+.split--hero-form {
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .split--hero-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1140px) {
+  .split--hero-form {
+    grid-template-columns: 0.95fr 1.05fr;
+  }
+}
+
+.hero .form-shell {
+  /* .hero sets color:var(--ice); anything added to the card later would be
+     near-invisible on white without this. */
+  color: var(--ink);
+  padding: clamp(22px, 2.6vw, 34px);
+}
+
+.hero__form .eyebrow {
+  /* --gold is tuned for navy; on white it needs the deeper shade to stay
+     readable. */
+  color: var(--gold-deep);
+  margin-bottom: 4px;
+}
+
+.hero__form-title {
+  font-size: clamp(1.3rem, 2vw, 1.65rem);
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+.hero__form-note {
+  color: var(--muted);
+  font-size: 0.87rem;
+  line-height: 1.55;
+  margin: 0 0 22px;
+}
+
+/* The two-column field grid is keyed to viewport width, not container width,
+   so inside this narrower column it has to be held back until there is really
+   room for two inputs side by side. */
+.hero__form .form-grid--2 {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 1140px) {
+  .hero__form .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}

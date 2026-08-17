@@ -44,7 +44,7 @@
   <!-- ============================================================ HERO -->
   <section class="hero">
     <div class="wrap">
-      <div class="split split--wide-left">
+      <div class="split split--hero-form">
         <div>
           <p class="eyebrow">Partner Agent Program &middot; By Invitation</p>
           <h1>Stop chasing leads.<br><span class="accent">Start owning a market.</span></h1>
@@ -59,16 +59,115 @@
             your CRM, ready to work.
           </p>
           <div class="btn-row">
-            <a class="btn btn--gold btn--lg" href="#apply">Apply for a Partner Seat</a>
             <a class="btn btn--ghost-light btn--lg" href="program.html">See What's Included</a>
           </div>
         </div>
-        <div class="hero__portrait">
-          <img src="assets/img/advisor-hero.jpg" alt="A federal benefits advisor reviewing a personalized benefits analysis with a client on a video call." width="819" height="1024">
-          <div class="hero__badge">
-            <strong>A practice, not a lead list.</strong>
-            <span>Live in 14 days</span>
-          </div>
+        <div class="form-shell hero__form" id="apply">
+          <p class="eyebrow">Partner Application</p>
+          <h2 class="hero__form-title">Apply for a partner seat.</h2>
+          <p class="hero__form-note">
+            Takes about two minutes. Seats are limited by territory and onboarding
+            capacity &mdash; this goes straight to our partner team.
+          </p>
+          <form id="apply-form" novalidate>
+            <div class="form-grid form-grid--2">
+              <div class="field">
+                <label for="firstName">First name <span class="req">*</span></label>
+                <input type="text" id="firstName" name="firstName" autocomplete="given-name" required>
+              </div>
+              <div class="field">
+                <label for="lastName">Last name <span class="req">*</span></label>
+                <input type="text" id="lastName" name="lastName" autocomplete="family-name" required>
+              </div>
+              <div class="field">
+                <label for="email">Email <span class="req">*</span></label>
+                <input type="email" id="email" name="email" autocomplete="email" required>
+              </div>
+              <div class="field">
+                <label for="phone">Phone <span class="req">*</span></label>
+                <input type="tel" id="phone" name="phone" autocomplete="tel" required>
+              </div>
+              <div class="field">
+                <label for="state">State you're licensed in</label>
+                <input type="text" id="state" name="state" autocomplete="address-level1" placeholder="e.g. Florida">
+              </div>
+              <div class="field">
+                <label for="licensed">Life &amp; health license status <span class="req">*</span></label>
+                <select id="licensed" name="licensed" required>
+                  <option value="">Select one…</option>
+                  <option>Actively licensed</option>
+                  <option>Licensed, currently inactive</option>
+                  <option>In process of getting licensed</option>
+                  <option>Not licensed — planning to get licensed</option>
+                  <option>Not licensed</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="experience">Years in insurance or financial services</label>
+                <select id="experience" name="experience">
+                  <option value="">Select one…</option>
+                  <option>Less than 1 year</option>
+                  <option>1&ndash;3 years</option>
+                  <option>3&ndash;7 years</option>
+                  <option>7&ndash;15 years</option>
+                  <option>15+ years</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="federalExperience">Experience with federal clients</label>
+                <select id="federalExperience" name="federalExperience">
+                  <option value="">Select one…</option>
+                  <option>None yet — this would be new</option>
+                  <option>A few federal clients</option>
+                  <option>Federal is a meaningful part of my book</option>
+                  <option>Federal is my primary market</option>
+                </select>
+              </div>
+              <div class="field field--full">
+                <label for="timeline">When are you looking to launch?</label>
+                <select id="timeline" name="timeline">
+                  <option value="">Select one…</option>
+                  <option>Immediately</option>
+                  <option>Within 30 days</option>
+                  <option>Within 90 days</option>
+                  <option>Just researching for now</option>
+                </select>
+              </div>
+              <div class="field field--full">
+                <label for="notes">Anything we should know before the call?</label>
+                <textarea id="notes" name="notes" placeholder="Your current lead sources, carrier appointments, goals for the next 12 months…"></textarea>
+              </div>
+              <div class="field field--full">
+                <label class="checkbox">
+                  <input type="checkbox" name="consent" value="yes" required>
+                  <span>
+                    I agree to be contacted by Fed Advisor Solutions by phone, email, or text
+                    about the Partner Agent Program. I understand this is a business
+                    opportunity for licensed insurance professionals, not an offer of
+                    employment, and that no income is guaranteed. <span class="req">*</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+  
+            <!-- Honeypot: hidden from people, filled in by bots. -->
+            <div class="hp-field" aria-hidden="true">
+              <label for="company">Company (leave blank)</label>
+              <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+            </div>
+  
+            <button class="btn btn--gold btn--lg btn--block" type="submit" style="margin-top:28px">
+              Submit My Application
+            </button>
+  
+            <div class="form-status" id="form-status"></div>
+  
+            <p class="field__hint" style="margin-top:20px">
+              Prefer email? Write to
+              <a href="mailto:partners@fedadvisorsolutions.com">partners@fedadvisorsolutions.com</a>
+              and we'll pick it up from there.
+            </p>
+          </form>
         </div>
       </div>
     </div>
@@ -85,126 +184,6 @@
   </div>
 
 
-  <!-- =================================================== APPLY (inline) -->
-  <!-- The same form as apply.html, placed on the landing page because paid
-       traffic arrives here. apply.html is kept for nav and direct links; the
-       two form blocks must stay in step — there is no build step to share
-       them, so a change to one has to be made in the other. -->
-  <section class="section section--cream" id="apply">
-    <div class="wrap wrap--narrow">
-      <div class="section-head reveal">
-        <p class="eyebrow">Partner Application</p>
-        <h2>Apply for a partner seat.</h2>
-        <p class="lede">
-          Takes about two minutes. Partner seats are limited by territory and onboarding
-          capacity. Everything here goes straight to our partner team &mdash; no call
-          centers, no lead resale.
-        </p>
-      </div>
-
-      <div class="form-shell reveal">
-        <form id="apply-form" novalidate>
-          <div class="form-grid form-grid--2">
-            <div class="field">
-              <label for="firstName">First name <span class="req">*</span></label>
-              <input type="text" id="firstName" name="firstName" autocomplete="given-name" required>
-            </div>
-            <div class="field">
-              <label for="lastName">Last name <span class="req">*</span></label>
-              <input type="text" id="lastName" name="lastName" autocomplete="family-name" required>
-            </div>
-            <div class="field">
-              <label for="email">Email <span class="req">*</span></label>
-              <input type="email" id="email" name="email" autocomplete="email" required>
-            </div>
-            <div class="field">
-              <label for="phone">Phone <span class="req">*</span></label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" required>
-            </div>
-            <div class="field">
-              <label for="state">State you're licensed in</label>
-              <input type="text" id="state" name="state" autocomplete="address-level1" placeholder="e.g. Florida">
-            </div>
-            <div class="field">
-              <label for="licensed">Life &amp; health license status <span class="req">*</span></label>
-              <select id="licensed" name="licensed" required>
-                <option value="">Select one…</option>
-                <option>Actively licensed</option>
-                <option>Licensed, currently inactive</option>
-                <option>In process of getting licensed</option>
-                <option>Not licensed — planning to get licensed</option>
-                <option>Not licensed</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="experience">Years in insurance or financial services</label>
-              <select id="experience" name="experience">
-                <option value="">Select one…</option>
-                <option>Less than 1 year</option>
-                <option>1&ndash;3 years</option>
-                <option>3&ndash;7 years</option>
-                <option>7&ndash;15 years</option>
-                <option>15+ years</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="federalExperience">Experience with federal clients</label>
-              <select id="federalExperience" name="federalExperience">
-                <option value="">Select one…</option>
-                <option>None yet — this would be new</option>
-                <option>A few federal clients</option>
-                <option>Federal is a meaningful part of my book</option>
-                <option>Federal is my primary market</option>
-              </select>
-            </div>
-            <div class="field field--full">
-              <label for="timeline">When are you looking to launch?</label>
-              <select id="timeline" name="timeline">
-                <option value="">Select one…</option>
-                <option>Immediately</option>
-                <option>Within 30 days</option>
-                <option>Within 90 days</option>
-                <option>Just researching for now</option>
-              </select>
-            </div>
-            <div class="field field--full">
-              <label for="notes">Anything we should know before the call?</label>
-              <textarea id="notes" name="notes" placeholder="Your current lead sources, carrier appointments, goals for the next 12 months…"></textarea>
-            </div>
-            <div class="field field--full">
-              <label class="checkbox">
-                <input type="checkbox" name="consent" value="yes" required>
-                <span>
-                  I agree to be contacted by Fed Advisor Solutions by phone, email, or text
-                  about the Partner Agent Program. I understand this is a business
-                  opportunity for licensed insurance professionals, not an offer of
-                  employment, and that no income is guaranteed. <span class="req">*</span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Honeypot: hidden from people, filled in by bots. -->
-          <div class="hp-field" aria-hidden="true">
-            <label for="company">Company (leave blank)</label>
-            <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
-          </div>
-
-          <button class="btn btn--gold btn--lg btn--block" type="submit" style="margin-top:28px">
-            Submit My Application
-          </button>
-
-          <div class="form-status" id="form-status"></div>
-
-          <p class="field__hint" style="margin-top:20px">
-            Prefer email? Write to
-            <a href="mailto:partners@fedadvisorsolutions.com">partners@fedadvisorsolutions.com</a>
-            and we'll pick it up from there.
-          </p>
-        </form>
-      </div>
-    </div>
-  </section>
   <!-- ===================================================== OPPORTUNITY -->
   <section class="section">
     <div class="wrap">
