@@ -1,0 +1,146 @@
+<!-- ==========================================================================
+     ZOHO CRM EMAIL TEMPLATE 2 of 2  —  INTERNAL NEW-LEAD ALERT
+     Module: FB_Leads
+     Suggested name: FB Advisor — New Application (Internal)
+     Recipients: mario@insurancemasters.biz, yashwanth.challa@insurancemasters.biz
+
+     SUBJECT LINE (paste into the Subject box, not the body):
+       New Partner Agent application — ${FB_Leads.First_Name} ${FB_Leads.Last_Name}
+
+     Merge fields used, all verified to exist in FB_Leads:
+       First_Name, Last_Name, Email, Phone, Licensed_State,
+       Life_Health_License_Status, Years_in_insurance_or_financial_services,
+       Experience_with_federal_clients, When_are_you_looking_to_launch,
+       Anything_we_should_know_before_the_call, Stage, Created_Time
+
+     NOTE ON THE RECORD LINK at the bottom: ${FB_Leads.Record_Link} is not a
+     field on the module — it is a Zoho-provided token. If it doesn't resolve,
+     delete that row and re-insert it from the editor's merge-field picker
+     (usually listed as "Record Link" / "Record URL").
+
+     Empty fields render blank. Anything the applicant left out on the form, or
+     that Zoho rejected on the way in, appears inside the Notes row instead.
+     ========================================================================== -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6f9;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:640px;max-width:640px;background:#ffffff;border-radius:6px;overflow:hidden;border:1px solid #e2e6ec;">
+
+        <!-- header -->
+        <tr>
+          <td style="background:#0b2545;padding:22px 28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td>
+                  <div style="color:#c9a227;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;">New Partner Application</div>
+                  <div style="color:#ffffff;font-size:20px;font-weight:600;line-height:1.25;">${FB_Leads.First_Name} ${FB_Leads.Last_Name}</div>
+                </td>
+                <td align="right" valign="top">
+                  <div style="color:#9fb3cd;font-size:11px;line-height:1.5;">FB_Leads</div>
+                  <div style="color:#9fb3cd;font-size:11px;line-height:1.5;">${FB_Leads.Created_Time}</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- contact strip -->
+        <tr>
+          <td style="padding:22px 28px 6px 28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8f9fb;border:1px solid #e8ecf1;border-radius:5px;">
+              <tr>
+                <td style="padding:16px 20px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td valign="top" style="padding-bottom:4px;">
+                        <div style="color:#8b96a5;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Email</div>
+                        <div style="font-size:14px;"><a href="mailto:${FB_Leads.Email}" style="color:#0b2545;font-weight:600;text-decoration:none;">${FB_Leads.Email}</a></div>
+                      </td>
+                      <td valign="top" style="padding-bottom:4px;">
+                        <div style="color:#8b96a5;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Phone</div>
+                        <div style="font-size:14px;"><a href="tel:${FB_Leads.Phone}" style="color:#0b2545;font-weight:600;text-decoration:none;">${FB_Leads.Phone}</a></div>
+                      </td>
+                      <td valign="top" style="padding-bottom:4px;">
+                        <div style="color:#8b96a5;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Stage</div>
+                        <div style="color:#0b2545;font-size:14px;font-weight:600;">${FB_Leads.Stage}</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- qualifying detail -->
+        <tr>
+          <td style="padding:20px 28px 4px 28px;">
+            <p style="margin:0 0 12px 0;color:#0b2545;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Qualifying Detail</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+              <tr>
+                <td width="45%" style="padding:11px 0;border-top:1px solid #eef1f5;color:#6b7787;font-size:13px;vertical-align:top;">Licensed state</td>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#22303f;font-size:13px;font-weight:600;vertical-align:top;">${FB_Leads.Licensed_State}</td>
+              </tr>
+              <tr>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#6b7787;font-size:13px;vertical-align:top;">Life &amp; health license status</td>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#22303f;font-size:13px;font-weight:600;vertical-align:top;">${FB_Leads.Life_Health_License_Status}</td>
+              </tr>
+              <tr>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#6b7787;font-size:13px;vertical-align:top;">Years in insurance</td>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#22303f;font-size:13px;font-weight:600;vertical-align:top;">${FB_Leads.Years_in_insurance_or_financial_services}</td>
+              </tr>
+              <tr>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#6b7787;font-size:13px;vertical-align:top;">Experience with federal clients</td>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;color:#22303f;font-size:13px;font-weight:600;vertical-align:top;">${FB_Leads.Experience_with_federal_clients}</td>
+              </tr>
+              <tr>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;border-bottom:1px solid #eef1f5;color:#6b7787;font-size:13px;vertical-align:top;">Wants to launch</td>
+                <td style="padding:11px 0;border-top:1px solid #eef1f5;border-bottom:1px solid #eef1f5;color:#22303f;font-size:13px;font-weight:600;vertical-align:top;">${FB_Leads.When_are_you_looking_to_launch}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- notes -->
+        <tr>
+          <td style="padding:22px 28px 8px 28px;">
+            <p style="margin:0 0 10px 0;color:#0b2545;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">In Their Own Words</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdfaf1;border-left:3px solid #c9a227;border-radius:0 4px 4px 0;">
+              <tr>
+                <td style="padding:16px 18px;color:#4a4636;font-size:13px;line-height:1.65;white-space:pre-line;">${FB_Leads.Anything_we_should_know_before_the_call}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- action -->
+        <tr>
+          <td style="padding:24px 28px 28px 28px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="background:#c9a227;border-radius:4px;">
+                  <a href="${FB_Leads.Record_Link}" style="display:inline-block;padding:12px 26px;color:#0b2545;font-size:14px;font-weight:700;text-decoration:none;">Open in Zoho CRM &rarr;</a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:16px 0 0 0;color:#8b96a5;font-size:12px;line-height:1.6;">
+              Work new applications within 48 hours. A full copy of every submission is also
+              stored in Neon regardless of what reaches CRM.
+            </p>
+          </td>
+        </tr>
+
+        <!-- footer -->
+        <tr>
+          <td style="background:#f8f9fb;border-top:1px solid #e8ecf1;padding:16px 28px;">
+            <p style="margin:0;color:#98a3b1;font-size:11px;line-height:1.6;">
+              Internal notification &middot; sent by a Zoho CRM workflow on record creation in FB_Leads.
+              Do not forward to the applicant.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
