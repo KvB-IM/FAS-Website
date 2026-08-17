@@ -51,6 +51,39 @@ A Zoho failure can never affect whether the application was saved, whether the
 applicant sees success, or how long they wait beyond the CRM timeout. It is
 recorded on the row and retried later — see **The Zoho CRM mirror** below.
 
+### Meta Pixel
+
+Pixel `1550261223486144` is installed on all six pages — the loader script at the end
+of `<head>`, the `<noscript>` fallback image at the top of `<body>` (an `<img>` is not
+valid inside `<head>`). Every page fires `PageView`.
+
+Two events come off the application form, from `assets/js/site.js`:
+
+| Event | Fires when | Use it for |
+|---|---|---|
+| `Lead` (standard) | `/api/apply` **accepted** the application | Ad optimisation and cost-per-lead. This is the real conversion. |
+| `ApplicationSubmitClicked` (custom) | The submit button is pressed, **including** presses the browser rejects for a missing required field | Abandonment rate — compare against `Lead` |
+
+Optimise campaigns against **`Lead`**, not the click event. A raw click counts failed
+validation attempts, so optimising on it teaches Meta to find people who bounce off the
+form.
+
+**No personal data is sent to Meta.** The form collects a name, email, and phone number;
+Meta's terms prohibit passing those as event parameters, so the events carry only
+`content_name`, `content_category`, and `source_page`. Don't add form fields to that
+payload — use Meta's Advanced Matching (which requires hashing) if you ever need it.
+
+Tracking can never break the form: `track()` no-ops when `fbq` is absent (ad blockers,
+private browsing) and swallows its own errors. After a successful submission the
+redirect to `thank-you.html` is delayed 300ms so the pixel request has time to leave —
+guarded so a blocked pixel can't strand anyone on the form.
+
+**Still outstanding: the site has no privacy policy or cookie notice.** The pixel sets
+cookies and sends browsing data to Meta. Meta's business tools terms require you to
+disclose this, and GDPR/CCPA may require consent before the pixel loads at all,
+depending on who you're advertising to. Worth raising with whoever handles your
+advertising compliance — the same review the footer disclosures need.
+
 ### The form needs JavaScript
 
 `site.js` submits the form with `fetch`; the `<form>` has no `action`/`method`, so with
