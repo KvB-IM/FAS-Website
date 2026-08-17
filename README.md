@@ -4,8 +4,9 @@ Marketing site for the Fed Advisor Solutions Partner Agent Program, built from t
 `Federal Benefits Exchange — Partner Agent Program.pptx` deck.
 
 Plain HTML, CSS, and JavaScript — **no build step, no framework**. Open any `.html`
-file in a browser and it works. Two Vercel serverless functions handle the
-application form.
+file in a browser and it works. Three Vercel serverless functions handle the
+application form: `/api/apply` takes submissions, `/api/leads` reads them back,
+and `/api/zoho-sync` inspects and repairs the Zoho CRM mirror.
 
 ---
 
@@ -37,6 +38,19 @@ build step, so **a change to the nav or footer has to be made in all six files.*
 Vercel installs `@neondatabase/serverless` from `package.json` for the `/api`
 functions and serves everything else as static files.
 
+### Where a submission goes
+
+`/api/apply` writes to **two** destinations, in this order:
+
+1. **Neon Postgres — the system of record.** Written first. The response the
+   applicant sees depends only on this step.
+2. **Zoho CRM, the `FB_Leads` module — a mirror for the sales team.** Attempted
+   only after the Neon row is safe, over Zoho's remote MCP server.
+
+A Zoho failure can never affect whether the application was saved, whether the
+applicant sees success, or how long they wait beyond the CRM timeout. It is
+recorded on the row and retried later — see **The Zoho CRM mirror** below.
+
 ### The database
 
 The application form posts to `/api/apply`, which writes to a Neon Postgres
@@ -46,7 +60,8 @@ table already exists.
 The handler reads `POSTGRES_URL || DATABASE_URL` — Vercel's Neon integration sets
 both when the database is attached to the project, so no manual configuration is
 needed as long as the storage integration is connected. `/api/apply` also
-re-creates the table if it is ever missing, so there is no migration step.
+re-creates the table if it is ever missing and adds the `crm_*` columns if they
+aren't there yet, so there is no migration step.
 
 **Never commit a connection string.** It belongs only in Vercel's environment
 variables. `.env` and `.env*.local` are gitignored.
@@ -54,7 +69,9 @@ variables. `.env` and `.env*.local` are gitignored.
 **Nothing is lost if the database is missing or down.** `/api/apply` falls back to
 writing the full submission to the function log as a single line beginning
 `APPLICATION_FALLBACK`, and still returns success to the applicant. Check
-**Project → Logs** and search for that string.
+**Project → Logs** and search for that string. The CRM push is still attempted in
+that case, so a Neon outage on its own usually costs nothing — the log line is
+only the last copy when Zoho fails too, which is why it's written either way.
 
 ### Reading applications back
 
@@ -67,14 +84,131 @@ curl -H "x-admin-token: YOUR_TOKEN" https://fedadvisorsolutions.com/api/leads
 Add `?format=csv` for a spreadsheet-ready download, and `?limit=500` to pull more
 than the default 200. Without `ADMIN_TOKEN` set, the endpoint refuses every request.
 
+Each row also carries `crm_record_id`, `crm_status`, and `crm_synced_at`, so the
+CRM mirror can be audited from the same export.
+
+---
+
+## The Zoho CRM mirror
+
+Every application is also created in the **`FB_Leads`** module, filling the
+`FB Advisor Leads` section. The push goes through **Zoho's remote MCP server**,
+not the REST API — which means the deployment holds **no client secret and no
+refresh token**. Zoho's MCP server authenticates by URL and refreshes the
+underlying OAuth tokens centrally, so the site needs exactly one environment
+variable.
+
+> **`ZOHO_MCP_URL` is a credential.** The access token is a path segment inside
+> it, so anyone holding the URL can read and write your CRM. It belongs in
+> Vercel's environment variables only — never committed, never in client-side
+> code, never pasted into a shared channel. Rotate it in Zoho MCP if it leaks.
+
+### Setting it up
+
+1. In Zoho MCP, open the **CRM Data & Metadata** server and copy its URL — the
+   full one ending in `/message`.
+2. In Vercel, add it as `ZOHO_MCP_URL`. That's the whole setup.
+
+With `ZOHO_MCP_URL` unset the CRM step is skipped silently and the form behaves
+exactly as it did before, so deploying this without the variable changes nothing.
+
+### The field mapping
+
+These api_names were read off the live `FB_Leads` module through the MCP server,
+not guessed. Each is overridable with the matching environment variable so a
+layout edit in Zoho never needs a code change.
+
+| Form field | Zoho api_name | Override |
+|---|---|---|
+| First name | `First_Name` | `ZOHO_FIELD_FIRST_NAME` |
+| Last name | `Last_Name` | `ZOHO_FIELD_LAST_NAME` |
+| Email | `Email` | `ZOHO_FIELD_EMAIL` |
+| Phone | `Phone` | `ZOHO_FIELD_PHONE` |
+| State licensed in | `Licensed_State` | `ZOHO_FIELD_STATE` |
+| Life & health license status | `Life_Health_License_Status` | `ZOHO_FIELD_LICENSED` |
+| Years in insurance | `Years_in_insurance_or_financial_services` | `ZOHO_FIELD_EXPERIENCE` |
+| Experience with federal clients | `Experience_with_federal_clients` | `ZOHO_FIELD_FEDERAL` |
+| Launch timeline | `When_are_you_looking_to_launch` | `ZOHO_FIELD_TIMELINE` |
+| Notes | `Anything_we_should_know_before_the_call` | `ZOHO_FIELD_NOTES` |
+
+New records also get `Stage` = `New Lead` (change with `ZOHO_STAGE`, or set it to
+an empty string to leave `Stage` to the module's own default).
+
+`Name` is deliberately **not** sent — Zoho populates it itself.
+
+### Verify the mapping any time
+
+```bash
+curl -H "x-admin-token: YOUR_TOKEN" \
+  "https://fedadvisorsolutions.com/api/zoho-sync?action=fields"
+```
+
+This MCP server exposes no fields-metadata tool, so verification works by asking
+COQL to select every mapped field at once: `"fields_verified": true` means every
+api_name above really exists in the module. It also confirms the MCP tools the
+push depends on are present, and returns a sample row. Add `&refresh=1` to
+force a new MCP handshake.
+
+### Backfilling and retries
+
+A failed push is never a lost lead — the row stays in Neon with
+`crm_record_id` still null.
+
+```bash
+curl -H "x-admin-token: YOUR_TOKEN" "https://.../api/zoho-sync?action=pending"
+curl -H "x-admin-token: YOUR_TOKEN" "https://.../api/zoho-sync?action=retry&limit=25"
+```
+
+`retry` works oldest-first, writes the outcome back to each row, and stops after
+the first row if it fails — a first-row failure is almost always the URL or the
+mapping, not that one record. This is also how you backfill applications taken
+before the mirror existed.
+
+### Behaviour worth knowing
+
+- **A second application from the same email updates the existing record**
+  rather than creating a duplicate, whenever Zoho reports the email as a
+  duplicate.
+- **A field Zoho rejects is dropped and the record retried, up to three times.**
+  This MCP server can't tell us in advance whether, say,
+  `When_are_you_looking_to_launch` is a picklist that won't accept
+  "Within 30 days" — so Zoho is allowed to say no, that one value moves into the
+  notes field, and the record still lands. A picklist that drifts out of sync
+  with the form degrades instead of failing.
+- **Neon is never at risk.** See below.
+
+### How the two destinations are kept independent
+
+This matters more than the CRM integration itself, so it is worth being explicit:
+
+- The **only** statements that run before the `INSERT` are the `CREATE TABLE IF
+  NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` that were always there. The
+  `ALTER TABLE` that adds the `crm_*` columns runs **after** the row is stored
+  and is wrapped so a role without `ALTER` privileges just logs
+  `CRM_COLUMN_MIGRATION_SKIPPED` and carries on.
+- The CRM push happens **after** the Neon outcome is already decided, and cannot
+  change the response the applicant sees.
+- Writing the CRM status back to the row is best-effort; if it fails the lead is
+  already safe.
+- If Neon fails and the CRM push succeeds, the lead is still in CRM. Only if
+  **both** fail does the `APPLICATION_FALLBACK` log line become the copy of
+  record — which is why it is still written either way.
+
 ### Environment variables
 
 | Name | Required | Purpose |
 |---|---|---|
 | `POSTGRES_URL` or `DATABASE_URL` | Set automatically by the Vercel Neon integration | Where applications are stored |
-| `ADMIN_TOKEN` | Only to use `/api/leads` | Shared secret for reading applications back |
+| `ADMIN_TOKEN` | To use `/api/leads` or `/api/zoho-sync` | Shared secret for reading applications back |
+| `ZOHO_MCP_URL` | For the CRM mirror | Zoho MCP server URL. **Treat as a password.** Unset = mirror disabled |
+| `ZOHO_MODULE` | No | Module api_name, default `FB_Leads` |
+| `ZOHO_STAGE` | No | `Stage` on new records, default `New Lead`. Empty string = leave unset |
+| `ZOHO_TYPE` | No | `Type` on new records, default unset |
+| `ZOHO_TIMEOUT_MS` | No | Whole-push budget, default `8000` |
+| `ZOHO_FIELD_*` | No | Per-field api_name overrides, see the table above |
 
 ---
+
 
 ## Before you go live
 

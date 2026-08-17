@@ -23,7 +23,10 @@ const COLUMNS = [
   'federal_experience',
   'timeline',
   'notes',
-  'source_page'
+  'source_page',
+  'crm_record_id',
+  'crm_status',
+  'crm_synced_at'
 ];
 
 function toCsv(rows) {
@@ -75,13 +78,32 @@ module.exports = async function handler(req, res) {
 
   try {
     const sql = neon(connectionString);
-    const rows = await sql`
-      SELECT id, created_at, first_name, last_name, email, phone, state, licensed,
-             experience, federal_experience, timeline, notes, source_page
-      FROM partner_applications
-      ORDER BY created_at DESC
-      LIMIT ${limit}
-    `;
+
+    // The crm_* columns are added by /api/apply's migration. On a deployment
+    // where no application has been submitted since the CRM mirror shipped
+    // they won't exist yet, so fall back to the original column set rather
+    // than failing the read.
+    let rows;
+    try {
+      rows = await sql`
+        SELECT id, created_at, first_name, last_name, email, phone, state, licensed,
+               experience, federal_experience, timeline, notes, source_page,
+               crm_record_id, crm_status, crm_synced_at
+        FROM partner_applications
+        ORDER BY created_at DESC
+        LIMIT ${limit}
+      `;
+    } catch (err) {
+      const missingColumn = err.code === '42703' || /column .* does not exist/i.test(err.message || '');
+      if (!missingColumn) throw err;
+      rows = await sql`
+        SELECT id, created_at, first_name, last_name, email, phone, state, licensed,
+               experience, federal_experience, timeline, notes, source_page
+        FROM partner_applications
+        ORDER BY created_at DESC
+        LIMIT ${limit}
+      `;
+    }
 
     res.setHeader('Cache-Control', 'no-store');
 
