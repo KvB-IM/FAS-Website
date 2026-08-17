@@ -51,6 +51,17 @@ A Zoho failure can never affect whether the application was saved, whether the
 applicant sees success, or how long they wait beyond the CRM timeout. It is
 recorded on the row and retried later — see **The Zoho CRM mirror** below.
 
+### The form needs JavaScript
+
+`site.js` submits the form with `fetch`; the `<form>` has no `action`/`method`, so with
+JavaScript blocked or broken, pressing submit does nothing. That is why
+`contact@fedadvisorsolutions.com` appears directly under both forms — it is the fallback
+route for those visitors, and the only contact information on the site.
+
+If you want a no-JS submission path too, add `action="/api/apply" method="POST"` to the
+form: `/api/apply` accepts form-encoded bodies, so the lead would still be captured,
+though the visitor would see raw JSON instead of `thank-you.html`.
+
 ### Caching — read this before wondering why a CSS change didn't show up
 
 `vercel.json` used to cache **everything** under `/assets/` for a year with
@@ -239,11 +250,14 @@ These are the placeholders and open items in the current build:
 - **Phone number** — no phone number appears anywhere. The deck said "Call Mario
   Roker" but gave no number. Add one to the footer `Contact` block in all six pages
   when you have the number you want published.
-- **Email** — `partners@fedadvisorsolutions.com` is used throughout. Make sure that
-  mailbox exists, or search and replace it.
-- **Booking link** — every CTA points at `apply.html`. If you'd rather send people
-  straight to a scheduler, replace the `href="apply.html"` on the primary buttons
-  with your Calendly/Chili Piper URL.
+- **Email** — `contact@fedadvisorsolutions.com` is the single contact address, in the
+  footer `Contact` block of all six pages, under both application forms, and on
+  `thank-you.html`. **Make sure that mailbox exists and is monitored** — it is now the
+  only way to reach you without submitting the form. To change it, search and replace
+  across the six `.html` files; there is no build step to do it in one place.
+- **Booking link** — the primary CTAs scroll to the form on the page (`#apply` on the
+  home page, `apply.html#form` elsewhere). If you'd rather send people straight to a
+  scheduler, replace those `href` values with your Calendly/Chili Piper URL.
 - **Hero photo** — `assets/img/advisor-hero.jpg` came from the deck. Confirm you hold
   a license for it, or swap in your own photo at the same 4:5 aspect ratio.
 - **Market statistics** — the 2.2M / 600K / 2.6M / $500K figures and their OPM, USPS,
