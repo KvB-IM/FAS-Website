@@ -101,33 +101,8 @@
     status.setAttribute('role', kind === 'error' ? 'alert' : 'status');
   }
 
-  /* Meta Pixel. Guarded because the pixel is blocked by most ad blockers and
-     by anyone browsing privately — tracking must never be able to stop a form
-     from submitting.
-
-     Nothing identifying is ever passed. The form collects a name, email, and
-     phone number; Meta's terms prohibit sending those as event parameters, so
-     only the page and form name go out. */
-  function track(event, isCustom) {
-    try {
-      if (typeof window.fbq !== 'function') return;
-      window.fbq(isCustom ? 'trackCustom' : 'track', event, {
-        content_name: 'Partner Agent Application',
-        content_category: 'partner-application',
-        source_page: location.pathname
-      });
-    } catch (err) {
-      /* never let analytics break the form */
-    }
-  }
-
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-
-    // Every press of the button, including ones the browser then rejects for a
-    // missing required field. Counting these separately from Lead is what makes
-    // an abandonment rate visible.
-    track('ApplicationSubmitClicked', true);
 
     if (!form.checkValidity()) {
       form.reportValidity();
@@ -162,23 +137,7 @@
           throw new Error(result.body && result.body.error ? result.body.error : 'Request failed');
         }
         form.reset();
-
-        // The conversion that matters — fired only once the API has actually
-        // accepted the application, so it counts leads rather than button
-        // presses. This is the event to optimise ad delivery against.
-        track('Lead');
-
-        // The pixel sends asynchronously and navigating away can cancel a
-        // request that hasn't left yet, so give it a moment before the
-        // redirect. Guarded by `done` so a slow or blocked pixel can never
-        // strand someone on the form.
-        var done = false;
-        var go = function () {
-          if (done) return;
-          done = true;
-          window.location.href = 'thank-you.html';
-        };
-        setTimeout(go, 300);
+        window.location.href = 'thank-you.html';
       })
       .catch(function (err) {
         console.error('[apply]', err);

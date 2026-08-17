@@ -55,28 +55,27 @@ recorded on the row and retried later — see **The Zoho CRM mirror** below.
 
 Pixel `1550261223486144` is installed on all six pages — the loader script at the end
 of `<head>`, the `<noscript>` fallback image at the top of `<body>` (an `<img>` is not
-valid inside `<head>`). Every page fires `PageView`.
+valid inside `<head>`). Every page fires `PageView`. That is the whole installation.
 
-Two events come off the application form, from `assets/js/site.js`:
+**No conversion events are defined in code.** Events are configured separately in Meta
+Events Manager. Two routes from here:
 
-| Event | Fires when | Use it for |
-|---|---|---|
-| `Lead` (standard) | `/api/apply` **accepted** the application | Ad optimisation and cost-per-lead. This is the real conversion. |
-| `ApplicationSubmitClicked` (custom) | The submit button is pressed, **including** presses the browser rejects for a missing required field | Abandonment rate — compare against `Lead` |
+- **Event Setup Tool** (point-and-click, no code) — pick the submit button in Meta's
+  overlay and map it to `Lead`. Note it fires on the *click*, so it also counts presses
+  the browser rejects for a missing required field.
+- **Add a `fbq('track', 'Lead')` call to `assets/js/site.js`** in the `.then()` that runs
+  after `/api/apply` returns success, if you want the event to fire only on an
+  application that was actually accepted.
 
-Optimise campaigns against **`Lead`**, not the click event. A raw click counts failed
-validation attempts, so optimising on it teaches Meta to find people who bounce off the
-form.
+Two things to know if you take the code route:
 
-**No personal data is sent to Meta.** The form collects a name, email, and phone number;
-Meta's terms prohibit passing those as event parameters, so the events carry only
-`content_name`, `content_category`, and `source_page`. Don't add form fields to that
-payload — use Meta's Advanced Matching (which requires hashing) if you ever need it.
-
-Tracking can never break the form: `track()` no-ops when `fbq` is absent (ad blockers,
-private browsing) and swallows its own errors. After a successful submission the
-redirect to `thank-you.html` is delayed 300ms so the pixel request has time to leave —
-guarded so a blocked pixel can't strand anyone on the form.
+- **Never pass form fields to Meta.** The form collects a name, email, and phone number
+  and Meta's terms prohibit sending those as event parameters. Use their Advanced
+  Matching (which hashes) if you need identity matching.
+- **The redirect races the pixel.** `site.js` navigates to `thank-you.html` immediately
+  on success, and navigation can cancel a pixel request that hasn't left yet. Either
+  delay the redirect ~300ms after firing, or fire the event on `thank-you.html` instead,
+  which is only reachable after a successful submission.
 
 **Still outstanding: the site has no privacy policy or cookie notice.** The pixel sets
 cookies and sends browsing data to Meta. Meta's business tools terms require you to
