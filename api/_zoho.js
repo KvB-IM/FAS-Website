@@ -20,20 +20,37 @@
 //   ZOHO_MCP_URL     Required to enable the mirror. The full .../message URL
 //                    from Zoho MCP. When unset, the CRM step is skipped
 //                    entirely and the form behaves exactly as it did before.
-//   ZOHO_MODULE      Module API name, default FB_Leads.
-//   ZOHO_STAGE       Value for Stage on new records, default "New Lead".
-//                    Set to "" to leave Stage to the module's own default.
+//   ZOHO_MODULE      Module API name, default Leads.
+//   ZOHO_STAGE       Value for Stage on new records. Empty by default,
+//                    because Leads has no Stage field.
+//   ZOHO_META_LEADS_TYPE
+//                    Value for Meta Leads Type, default
+//                    "Fed Advisor Solutions Leads". Set to "" to omit.
 //   ZOHO_TYPE        Value for Type, default unset.
 //   ZOHO_TIMEOUT_MS  Whole-push budget in ms, default 8000.
 //   ZOHO_FIELD_*     Per-field api_name overrides, see FIELD_MAP.
 //
-// The field names below were read off the live FB_Leads module through this
-// same MCP server rather than guessed. They are still overridable, because a
-// layout edit in Zoho shouldn't need a code change.
+// The mirror targets the standard Leads module. The field names below were
+// read off the live Leads module through this same MCP server rather than
+// guessed, and each is still overridable, because a layout edit in Zoho
+// shouldn't need a code change.
+//
+// Six of the fields the old FB_Leads mapping used do not exist on Leads:
+// Licensed_State, Life_Health_License_Status,
+// Years_in_insurance_or_financial_services, Experience_with_federal_clients,
+// When_are_you_looking_to_launch and Anything_we_should_know_before_the_call.
+// State and Description cover two of them; the other four have no equivalent,
+// so they are marked api: null and folded into Description as labelled lines.
+// Leaving them to the retry loop was not an option — it drops one blamed field
+// per attempt and gives up after three.
 'use strict';
 
-const DEFAULT_MODULE = 'FB_Leads';
-const DEFAULT_STAGE = 'New Lead';
+const DEFAULT_MODULE = 'Leads';
+// Leads has no Stage field (that was FB_Leads). Nothing is sent unless
+// ZOHO_STAGE is set explicitly.
+const DEFAULT_STAGE = '';
+// Leads has a text field 'Meta Leads Type' used to tag where a lead came from.
+const DEFAULT_META_LEADS_TYPE = 'Fed Advisor Solutions Leads';
 const DEFAULT_TIMEOUT_MS = 8000;
 const PROTOCOL_VERSION = '2025-06-18';
 
@@ -42,30 +59,30 @@ const FIELD_MAP = {
   lastName: { env: 'ZOHO_FIELD_LAST_NAME', api: 'Last_Name', label: 'Last name' },
   email: { env: 'ZOHO_FIELD_EMAIL', api: 'Email', label: 'Email' },
   phone: { env: 'ZOHO_FIELD_PHONE', api: 'Phone', label: 'Phone' },
-  state: { env: 'ZOHO_FIELD_STATE', api: 'Licensed_State', label: 'Licensed state' },
+  state: { env: 'ZOHO_FIELD_STATE', api: 'State', label: 'Licensed state' },
   licensed: {
     env: 'ZOHO_FIELD_LICENSED',
-    api: 'Life_Health_License_Status',
+    api: null,
     label: 'Life & health license status'
   },
   experience: {
     env: 'ZOHO_FIELD_EXPERIENCE',
-    api: 'Years_in_insurance_or_financial_services',
+    api: null,
     label: 'Years in insurance'
   },
   federalExperience: {
     env: 'ZOHO_FIELD_FEDERAL',
-    api: 'Experience_with_federal_clients',
+    api: null,
     label: 'Experience with federal clients'
   },
   timeline: {
     env: 'ZOHO_FIELD_TIMELINE',
-    api: 'When_are_you_looking_to_launch',
+    api: null,
     label: 'Launch timeline'
   },
   notes: {
     env: 'ZOHO_FIELD_NOTES',
-    api: 'Anything_we_should_know_before_the_call',
+    api: 'Description',
     label: 'Notes'
   }
 };
@@ -81,8 +98,10 @@ function env(name) {
   return (process.env[name] || '').trim();
 }
 
+// null api means "no field for this on the target module" — the value is
+// folded into the notes field instead of being sent on its own.
 function fieldName(key) {
-  return env(FIELD_MAP[key].env) || FIELD_MAP[key].api;
+  return env(FIELD_MAP[key].env) || FIELD_MAP[key].api || null;
 }
 
 function moduleName() {
@@ -240,13 +259,14 @@ function buildRecord(data, skipKeys) {
     if (key === OVERFLOW_KEY) continue;
     const value = data[key];
     if (!value) continue;
-    if (skip.indexOf(fieldName(key)) !== -1) {
-      // Zoho rejected this field on a previous attempt — keep the value, just
-      // not in that field.
+    const name = fieldName(key);
+    if (!name || skip.indexOf(name) !== -1) {
+      // Either the target module has no field for this, or Zoho rejected it on
+      // a previous attempt. Keep the value, just not in that field.
       overflow.push(FIELD_MAP[key].label + ': ' + value);
       continue;
     }
-    record[fieldName(key)] = value;
+    record[name] = value;
   }
 
   // Applicant's own message, plus anything Zoho wouldn't take, plus provenance.
@@ -263,8 +283,18 @@ function buildRecord(data, skipKeys) {
   const stage = process.env.ZOHO_STAGE === undefined ? DEFAULT_STAGE : env('ZOHO_STAGE');
   if (stage && skip.indexOf('Stage') === -1) record.Stage = stage;
 
+  // Leads has no Type field; kept for modules that do, and unset by default.
   const type = env('ZOHO_TYPE');
   if (type && skip.indexOf('Type') === -1) record.Type = type;
+
+  // Tags the source of the lead inside the shared Leads module, so these are
+  // distinguishable from every other lead flowing into it.
+  const metaField = env('ZOHO_FIELD_META_LEADS_TYPE') || 'Meta_Leads_Type';
+  const metaValue =
+    process.env.ZOHO_META_LEADS_TYPE === undefined
+      ? DEFAULT_META_LEADS_TYPE
+      : env('ZOHO_META_LEADS_TYPE');
+  if (metaValue && skip.indexOf(metaField) === -1) record[metaField] = metaValue;
 
   for (const banned of NEVER_SEND) delete record[banned];
   for (const key of Object.keys(record)) {
