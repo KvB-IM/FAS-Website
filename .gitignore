@@ -5,3 +5,6 @@ node_modules/
 .env*.local
 .DS_Store
 *.log
+
+# Source concept folder, absorbed into the site. Kept locally, not shipped.
+update/

@@ -7,31 +7,40 @@
    1. Tokens
    -------------------------------------------------------------------------- */
 :root {
-  /* Brand */
-  --navy-deep: #081b36;
+  /* Brand — navy ramp, deepest to lightest.
+     The update concept shipped twelve near-identical navies and four golds.
+     Everything resolves to these. */
+  --navy-deep: #06172c;
   --navy: #0b2545;
-  --navy-mid: #13315c;
-  --navy-soft: #3a5b8a;
+  --navy-mid: #123253;
+  --navy-soft: #1b4470;
   --navy-pale: #8fa1bf;
 
   --gold: #c9a227;
-  --gold-light: #e7c86b;
+  --gold-light: #e4cb72;
+  /* --gold is tuned for navy grounds; on white it needs the deeper shade. */
   --gold-deep: #a8871a;
 
-  --cream: #f5f1e8;
-  --sand: #d8d2c2;
-  --ice: #d6deec;
+  /* Single accent. One job only: "not a fit" marks and required-field stars. */
+  --terracotta: #a84b2f;
 
-  --ink: #1a1a1a;
-  --muted: #6b6b6b;
-  --line: rgba(11, 37, 69, 0.12);
-  --line-light: rgba(255, 255, 255, 0.16);
+  /* Neutrals. The concept's crisp steel replaces the old warm cream. */
+  --mist: #f4f7fa;
+  --cream: #e2e8ef;
+  --sand: #cfd8e3;
+  --ice: #e2e8ef;
+
+  --ink: #13233a;
+  --ink-soft: #3d4854;
+  --muted: #5d6570;
+  --line: rgba(11, 37, 69, 0.14);
+  --line-light: rgba(226, 232, 239, 0.18);
   --white: #ffffff;
 
-  /* Type */
-  --serif: Georgia, "Times New Roman", Times, serif;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+  /* Type — Boska carries headings and display numerals, Satoshi the rest. */
+  --serif: "Boska", Georgia, "Times New Roman", Times, serif;
+  --sans: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 
   /* Space */
   --gutter: 24px;
@@ -41,9 +50,9 @@
   /* Effects */
   --radius: 4px;
   --radius-lg: 8px;
-  --shadow-sm: 0 1px 2px rgba(8, 27, 54, 0.06), 0 2px 8px rgba(8, 27, 54, 0.06);
-  --shadow-md: 0 4px 12px rgba(8, 27, 54, 0.08), 0 12px 32px rgba(8, 27, 54, 0.1);
-  --shadow-lg: 0 18px 50px rgba(8, 27, 54, 0.18);
+  --shadow-sm: 0 1px 2px rgba(6, 23, 44, 0.06), 0 2px 8px rgba(6, 23, 44, 0.06);
+  --shadow-md: 0 4px 12px rgba(6, 23, 44, 0.08), 0 12px 32px rgba(6, 23, 44, 0.1);
+  --shadow-lg: 0 18px 50px rgba(6, 23, 44, 0.18);
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -299,7 +308,7 @@ hr {
 .lede {
   font-size: clamp(1.05rem, 1.6vw, 1.22rem);
   line-height: 1.6;
-  color: #38434f;
+  color: var(--ink-soft);
   max-width: 62ch;
 }
 
@@ -794,7 +803,7 @@ hr {
 .stat__label {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #3d4854;
+  color: var(--ink-soft);
   margin: 0;
 }
 
@@ -915,7 +924,7 @@ hr {
 
 .feature-row p {
   margin: 0;
-  color: #3d4854;
+  color: var(--ink-soft);
 }
 
 /* --------------------------------------------------------------------------
@@ -1136,7 +1145,7 @@ hr {
 
 .mockup__list li {
   font-size: 0.85rem;
-  color: #3d4854;
+  color: var(--ink-soft);
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
   margin: 0;
@@ -1645,7 +1654,7 @@ hr {
   align-items: flex-start;
   font-size: 0.88rem;
   line-height: 1.5;
-  color: #3d4854;
+  color: var(--ink-soft);
 }
 
 .checkbox input {
@@ -1924,7 +1933,7 @@ hr {
 
 .hero__form-note {
   /* --muted is too light for small text on the white card. */
-  color: #3d4854;
+  color: var(--ink-soft);
   font-size: 0.92rem;
   line-height: 1.6;
   margin: 0 0 22px;
@@ -1932,7 +1941,7 @@ hr {
 
 /* Same reason — the hint under the submit button sits on white too. */
 .hero__form .field__hint {
-  color: #4a5563;
+  color: var(--muted);
 }
 
 /* The shared .form-grid--2 goes two-up at a 640px *viewport*, which says
@@ -1962,4 +1971,261 @@ hr {
   .hero__form .form-grid--2 {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* ==========================================================================
+   23. Visual refresh — the update concept's language, applied to the
+       existing markup.
+   ==========================================================================
+   Appended deliberately: every rule here overrides an earlier one at equal
+   specificity, so nothing above had to be edited and the hero-form fixes stay
+   exactly as they were. Three changes carry the concept:
+
+     - a cool page ground instead of flat white
+     - Boska headings at a larger display scale, with the gold italic accent
+     - the eyebrow's short gold rule, and serif numerals in place of the
+       filled circles
+   ========================================================================== */
+
+body {
+  color: var(--ink);
+  background: var(--mist);
+}
+
+/* ---------------------------------------------------------- 23.1 Headings */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.6rem, 1.6rem + 4.2vw, 5.2rem);
+  line-height: 1.04;
+}
+
+h2 {
+  font-size: clamp(2.1rem, 1.4rem + 2.8vw, 3.7rem);
+  line-height: 1.06;
+}
+
+h3 {
+  font-size: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
+  line-height: 1.2;
+}
+
+/* The hero form title sits inside a card and must not scale like a page
+   heading. */
+.hero__form-title {
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  line-height: 1.2;
+}
+
+.accent {
+  font-style: italic;
+  color: var(--gold-deep);
+}
+
+.hero .accent,
+.section--navy .accent,
+.cta-band .accent {
+  color: var(--gold);
+}
+
+/* ----------------------------------------------------------- 23.2 Eyebrow */
+/* The concept opens every eyebrow with a short gold rule. */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 2rem;
+  height: 2px;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+/* Inside the hero card the rule crowds a tight stack. */
+.hero__form .eyebrow::before {
+  display: none;
+}
+
+.section-head.center .eyebrow,
+.cta-band .eyebrow {
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------- 23.3 Cards */
+/* Serif numeral replaces the filled circle — the concept's card index. */
+.card__num,
+.feature-row__num,
+.step__num {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--gold-deep);
+  background: none;
+  line-height: 1;
+}
+
+.card__num {
+  display: block;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+}
+
+.card--dark .card__num,
+.section--navy .card__num,
+.section--navy .step__num {
+  color: var(--gold);
+  background: none;
+}
+
+.step__num {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+}
+
+.card {
+  border-radius: 10px;
+}
+
+/* -------------------------------------------------------------- 23.4 Stat */
+.stat {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.section--navy .stat,
+.hero .stat {
+  border-top-color: var(--line-light);
+}
+
+.stat__num {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--gold-deep);
+  letter-spacing: -0.01em;
+}
+
+.section--navy .stat__num,
+.hero .stat__num {
+  color: var(--gold);
+}
+
+/* ----------------------------------------------------------- 23.5 Buttons */
+.btn {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: var(--radius);
+}
+
+.btn--gold {
+  color: var(--navy-deep);
+}
+
+.btn--gold:hover {
+  background: var(--gold-light);
+  color: var(--navy-deep);
+}
+
+/* --------------------------------------------------------- 23.6 Fit lists */
+/* Terracotta earns its keep here and nowhere else. */
+.crosslist li::before,
+.crosslist li::after {
+  background: var(--terracotta);
+}
+
+.field label .req,
+.req {
+  color: var(--terracotta);
+}
+
+/* ------------------------------------------------------------ 23.7 Ground */
+/* The old warm cream band is now the concept's crisp steel. */
+.section--cream {
+  background: var(--cream);
+}
+
+.hero {
+  background: var(--navy-deep);
+}
+
+.cta-band {
+  background: var(--navy-deep);
+}
+
+.site-footer {
+  background: var(--navy);
+}
+
+/* ------------------------------------------------------- 23.8 Media panel */
+/* Photography carried over from the concept. */
+.figure {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+}
+
+.figure img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+}
+
+.figure figcaption {
+  padding: 14px 20px;
+  font-size: 0.8rem;
+  color: var(--ice);
+  background: var(--navy);
+}
+
+/* The concept's display scale assumes a full-bleed hero. Where the hero is
+   split with the application form, the headline column is roughly half as
+   wide, so the same clamp runs to four lines and pushes the lede out of the
+   first screen. */
+.split--hero-form h1 {
+  font-size: clamp(2.1rem, 1.4rem + 2.2vw, 3.5rem);
+  line-height: 1.06;
+}
+
+/* The included strip was built for the old five-part package. The offer now
+   has six deliverables, so a hard five-column grid stranded the sixth on its
+   own row. Two rows of three in the middle range, six across when there's
+   room. */
+@media (min-width: 720px) {
+  .included-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1040px) {
+  .included-strip {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* The base `img` rule sets max-width but never height, so the width/height
+   HTML attributes (which are there to reserve layout space and avoid shift)
+   applied as a literal pixel height. A 2752x1536 photo rendered 1536px tall
+   and ignored its aspect-ratio. */
+img {
+  height: auto;
 }
