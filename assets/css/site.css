@@ -153,6 +153,7 @@ li {
   --text-xs: clamp(0.75rem, 0.71rem + 0.18vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.83rem + 0.2vw, 1rem);
   --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --text-md: clamp(1.05rem, 0.99rem + 0.3vw, 1.25rem);
   --text-lg: clamp(1.15rem, 1.02rem + 0.62vw, 1.5rem);
   --text-xl: clamp(1.7rem, 1.28rem + 1.5vw, 2.65rem);
   --text-2xl: clamp(2.4rem, 1.45rem + 3.2vw, 4.8rem);
@@ -163,6 +164,10 @@ li {
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-6: 1.5rem;
+  /* The concept referenced --space-7 and --text-md without ever declaring
+     them, so eight rules resolved to nothing. Interpolated between their
+     neighbours. */
+  --space-7: 1.75rem;
   --space-8: 2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
@@ -2633,7 +2638,7 @@ body {
    stopped being gold. */
 #launch-system .system-card .index,
 #package .system-card .index {
-  color: var(--color-gold);
+  color: var(--color-gold-light);
 }
 
 #launch-system .system-card__tag,
@@ -2703,4 +2708,71 @@ body {
 #investment .price-card--primary .price-label,
 #investment .price-card--primary .price-features li::before {
   color: var(--color-navy);
+}
+
+/* ==========================================================================
+   Deliverable rows, matched to the house numbered-list pattern
+   ==========================================================================
+   .pillar and .opportunity-row do the same job but were drawn differently:
+   the pillars centred each row vertically, used a wider numeral column, and
+   finished with an outlined pill chip. .opportunity-row — the pattern used on
+   the opportunity page and the thank-you page — tops-aligns the numeral with
+   the heading and has no chip. These bring the pillars into line.
+   ========================================================================== */
+.pillar {
+  grid-template-columns: 4rem minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: start;
+  padding-block: var(--space-8);
+}
+
+.pillar-no {
+  font-size: var(--text-xl);
+  line-height: 1;
+}
+
+/* The chip becomes the same small-caps label the cards use. */
+.pillar-tag {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  align-self: start;
+  margin-top: 0.35rem;
+}
+
+#package .pillar .pillar-tag,
+#package .pillar:nth-child(2n) .pillar-tag {
+  color: rgba(226, 232, 239, 0.66);
+  background: transparent;
+}
+
+/* #package restates the pillar geometry at its own specificity — a numeral
+   column up to 8.5rem and a numeral up to 6.5rem — which is why the generic
+   .pillar rules above did not reach it. Brought to the same proportions as
+   .opportunity-row so all the numbered lists read alike. */
+#package .pillar {
+  grid-template-columns: 4rem minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  padding: var(--space-8) 0;
+  border-top-color: rgba(226, 232, 239, 0.18);
+}
+
+#package .pillar:last-child {
+  border-bottom-color: rgba(226, 232, 239, 0.18);
+}
+
+#package .pillar .pillar-no,
+#package .pillar:nth-child(2n) .pillar-no,
+#package .pillar:nth-child(even) .pillar-no {
+  /* gold-light, matching .opportunity-number on the same navy ground. */
+  color: var(--color-gold-light);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
