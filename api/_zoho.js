@@ -26,6 +26,8 @@
 //   ZOHO_META_LEADS_TYPE
 //                    Value for Meta Leads Type, default
 //                    "Fed Advisor Solutions Leads". Set to "" to omit.
+//   ZOHO_LEAD_TYPE   Value for Lead Type, default "FAS". Picklist: the option
+//                    must exist in Zoho. Set to "" to omit.
 //   ZOHO_TYPE        Value for Type, default unset.
 //   ZOHO_TIMEOUT_MS  Whole-push budget in ms, default 8000.
 //   ZOHO_FIELD_*     Per-field api_name overrides, see FIELD_MAP.
@@ -51,6 +53,13 @@ const DEFAULT_MODULE = 'Leads';
 const DEFAULT_STAGE = '';
 // Leads has a text field 'Meta Leads Type' used to tag where a lead came from.
 const DEFAULT_META_LEADS_TYPE = 'Fed Advisor Solutions Leads';
+// Lead_Type is a picklist. 'FAS' has to exist as an option in Zoho or the
+// push is rejected with INVALID_DATA and the retry loop drops the field —
+// the lead still lands, just untagged, with the value folded into notes.
+// Note the picklist stores values that differ from their labels on this
+// module ('Business Primary Contact' displays as 'ACA'), so send the stored
+// value, not the label.
+const DEFAULT_LEAD_TYPE = 'FAS';
 const DEFAULT_TIMEOUT_MS = 8000;
 const PROTOCOL_VERSION = '2025-06-18';
 
@@ -295,6 +304,13 @@ function buildRecord(data, skipKeys) {
       ? DEFAULT_META_LEADS_TYPE
       : env('ZOHO_META_LEADS_TYPE');
   if (metaValue && skip.indexOf(metaField) === -1) record[metaField] = metaValue;
+
+  const leadTypeField = env('ZOHO_FIELD_LEAD_TYPE') || 'Lead_Type';
+  const leadTypeValue =
+    process.env.ZOHO_LEAD_TYPE === undefined ? DEFAULT_LEAD_TYPE : env('ZOHO_LEAD_TYPE');
+  if (leadTypeValue && skip.indexOf(leadTypeField) === -1) {
+    record[leadTypeField] = leadTypeValue;
+  }
 
   for (const banned of NEVER_SEND) delete record[banned];
   for (const key of Object.keys(record)) {
