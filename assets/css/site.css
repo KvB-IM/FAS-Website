@@ -453,9 +453,14 @@ body {
   font-size: clamp(3rem, 4.8vw, 5.8rem);
 }
 
+/* The concept pushed this block down with a transform, which moves it
+   visually but leaves its footprint where it was — so .hero-lede, the buttons
+   and the note below it stayed put and the block landed on top of them. It
+   only looked right while the stats fitted inside 240px minus the 72px shift;
+   as soon as a stat description wrapped to a third line it overlapped the
+   lede. A margin does the same thing and stays in flow. */
 .hero-market-copy {
-  min-height: 15rem;
-  transform: translateY(4.5rem);
+  margin-top: 4.5rem;
 }
 
 .hero-market-copy h1 {
@@ -958,6 +963,20 @@ body {
   border-bottom: 3px solid var(--color-navy-deep);
 }
 
+/* Sized for this column rather than the full container, so the heading stops
+   running underneath the promise card. */
+.system-intro h2 {
+  font-size: clamp(2.1rem, 1.2rem + 2.4vw, 3.4rem);
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 1024px) {
+  .system-intro {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
 .system-promise {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -1365,9 +1384,28 @@ body {
 
 .profession-card:nth-child(1),
 .profession-card:nth-child(5) {
-  grid-column: span 8;
   background: var(--color-navy);
   color: #fff;
+}
+
+/* Five cards over a 12-column grid: three across, then one plus a
+   double-width fifth. Every row fills, and nothing is left ragged. */
+.profession-card:nth-child(5) {
+  grid-column: span 8;
+}
+
+@media (max-width: 900px) {
+  .profession-card,
+  .profession-card:nth-child(5) {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 620px) {
+  .profession-card,
+  .profession-card:nth-child(5) {
+    grid-column: span 12;
+  }
 }
 
 .profession-card .profession-index {
@@ -1840,10 +1878,14 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
   gap: var(--space-6);
-  align-items: start;
+  /* stretch, not start: the two packages hold different amounts of copy, and
+     align-items:start left Package A 80px taller than Package B. */
+  align-items: stretch;
 }
 
 .price-card {
+  display: flex;
+  flex-direction: column;
   padding: clamp(var(--space-8), 5vw, var(--space-16));
   background: var(--color-surface);
   border: 1px solid var(--color-border);
