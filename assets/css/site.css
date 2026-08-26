@@ -2782,26 +2782,44 @@ body {
    ==========================================================================
    It used a bold sans line with the number inline ("1. Get trained") and no
    numeral of its own, so it was the one list on the site that did not read
-   like the others. Now the same shape as .opportunity-row and #package .pillar:
-   a gold Times numeral in a fixed column, a serif heading, then body copy.
+   like the others.
+
+   It now uses the same type as #package .pillar — a 4rem gold Times numeral at
+   --text-xl, a display heading, --text-md body. That type does not fit four
+   295px columns (the heading alone would wrap three times in the 186px left
+   after the numeral), so the band is two columns at desktop. Each cell is then
+   ~542px of content, enough for the heading to sit on one line.
    ========================================================================== */
+.offer-clarity-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .offer-clarity-grid > div {
   min-height: 0;
-  padding: var(--space-7) var(--space-6);
+  padding: var(--space-8) var(--space-8);
+}
+
+/* Only the left cell of each row carries a divider. */
+.offer-clarity-grid > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.offer-clarity-grid > div:nth-child(-n + 2) {
+  border-bottom: 1px solid rgba(226, 232, 239, 0.18);
 }
 
 .clarity-step {
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: var(--space-5);
   align-items: start;
 }
 
-/* .offer-clarity-grid span (0-1-1) still targets this element and would win
+/* .offer-clarity-grid span (0-1-1) still matches this element and would win
    over a bare .clarity-step__no (0-1-0), so the selector carries the grid. */
 .offer-clarity-grid .clarity-step__no {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: 700;
   line-height: 1;
   color: var(--color-gold-light);
@@ -2809,30 +2827,22 @@ body {
 }
 
 .clarity-step h3 {
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
   font-family: var(--font-display);
-  font-size: var(--text-md);
+  font-size: clamp(1.45rem, 1.9vw, 2rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
   color: #fff;
 }
 
 .clarity-step p {
-  font-size: var(--text-sm);
-  line-height: 1.55;
+  max-width: 46ch;
+  font-size: var(--text-md);
+  line-height: 1.6;
   color: rgba(226, 232, 239, 0.82);
 }
 
-@media (max-width: 900px) {
-  .offer-clarity-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .offer-clarity-grid > div:nth-child(2n) {
-    border-right: 0;
-  }
-}
-
-@media (max-width: 560px) {
+@media (max-width: 720px) {
   .offer-clarity-grid {
     grid-template-columns: 1fr;
   }
@@ -2842,5 +2852,9 @@ body {
   }
   .offer-clarity-grid > div:last-child {
     border-bottom: 0;
+  }
+  .clarity-step {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--space-4);
   }
 }
