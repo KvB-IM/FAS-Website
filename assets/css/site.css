@@ -2776,3 +2776,71 @@ body {
   letter-spacing: -0.02em;
   line-height: 1;
 }
+
+/* ==========================================================================
+   Four-step band, matched to the house numbered list
+   ==========================================================================
+   It used a bold sans line with the number inline ("1. Get trained") and no
+   numeral of its own, so it was the one list on the site that did not read
+   like the others. Now the same shape as .opportunity-row and #package .pillar:
+   a gold Times numeral in a fixed column, a serif heading, then body copy.
+   ========================================================================== */
+.offer-clarity-grid > div {
+  min-height: 0;
+  padding: var(--space-7) var(--space-6);
+}
+
+.clarity-step {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* .offer-clarity-grid span (0-1-1) still targets this element and would win
+   over a bare .clarity-step__no (0-1-0), so the selector carries the grid. */
+.offer-clarity-grid .clarity-step__no {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-gold-light);
+  letter-spacing: -0.02em;
+}
+
+.clarity-step h3 {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.clarity-step p {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: rgba(226, 232, 239, 0.82);
+}
+
+@media (max-width: 900px) {
+  .offer-clarity-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .offer-clarity-grid > div:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .offer-clarity-grid {
+    grid-template-columns: 1fr;
+  }
+  .offer-clarity-grid > div {
+    border-right: 0;
+    border-bottom: 1px solid rgba(226, 232, 239, 0.18);
+  }
+  .offer-clarity-grid > div:last-child {
+    border-bottom: 0;
+  }
+}
