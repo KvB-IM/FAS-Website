@@ -2574,3 +2574,133 @@ body {
   background: var(--color-gold);
   border-radius: var(--radius-sm);
 }
+
+/* ==========================================================================
+   Launch-system and package sections on navy
+   ==========================================================================
+   These two were the only full-height gold grounds left, and they sat oddly
+   against a site that is otherwise navy throughout. Reworked to the same
+   white-on-navy treatment the opportunity sections use (--color-navy-mid, as
+   on .offer-snapshot and #market-case), with the card rules re-pointed off the
+   navy-on-gold colours they were written for.
+   ========================================================================== */
+#launch-system,
+#package {
+  color: var(--color-on-navy);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(201, 162, 39, 0.14), transparent 34%),
+    var(--color-navy-mid);
+}
+
+#launch-system .section-heading h2,
+#package .section-heading h2,
+#launch-system .system-intro h2,
+#package .system-intro h2 {
+  color: #fff;
+}
+
+#launch-system .section-heading p,
+#package .section-heading p,
+#launch-system .system-intro p,
+#package .system-intro p {
+  color: rgba(226, 232, 239, 0.86);
+}
+
+/* Gold reads well on navy and keeps the brand present now the ground has gone. */
+#launch-system .section-heading .eyebrow,
+#package .section-heading .eyebrow {
+  color: var(--color-gold);
+}
+
+/* The cards were navy-on-gold: dark text, dark rules, terracotta labels. */
+#launch-system .system-card,
+#package .system-card {
+  color: var(--color-on-navy);
+  border-top-color: rgba(201, 162, 39, 0.55);
+}
+
+#launch-system .system-card h3,
+#package .system-card h3 {
+  color: #fff;
+}
+
+#launch-system .system-card p,
+#package .system-card p {
+  color: rgba(226, 232, 239, 0.82);
+}
+
+/* The big numeral is .index, and it was navy-deep — invisible once the ground
+   stopped being gold. */
+#launch-system .system-card .index,
+#package .system-card .index {
+  color: var(--color-gold);
+}
+
+#launch-system .system-card__tag,
+#package .system-card__tag {
+  color: rgba(226, 232, 239, 0.66);
+}
+
+#launch-system .system-card__outcome,
+#package .system-card__outcome {
+  color: var(--color-gold-light);
+  border-top-color: rgba(226, 232, 239, 0.18);
+}
+
+/* The divider under the intro was drawn for a light ground. */
+#launch-system .system-intro,
+#package .system-intro {
+  border-bottom-color: rgba(226, 232, 239, 0.22);
+}
+
+#launch-system .system-closing,
+#package .system-closing {
+  color: rgba(226, 232, 239, 0.86);
+}
+
+/* #package uses .pillar rows rather than .system-card, so it needed its own
+   pass off the navy-on-gold colours. The concept pairs each rule with an
+   :nth-child(2n) variant for the alternating rows, so these have to carry the
+   same selector shape — a plain `#package .pillar p` loses to
+   `#package .pillar:nth-child(2n) p` on specificity and only every other row
+   would have changed. */
+#package .pillar,
+#package .pillar:nth-child(2n) {
+  color: var(--color-on-navy);
+  border-top-color: rgba(226, 232, 239, 0.18);
+}
+
+#package .pillar .pillar-no,
+#package .pillar:nth-child(2n) .pillar-no {
+  color: var(--color-gold);
+}
+
+#package .pillar h3,
+#package .pillar:nth-child(2n) h3 {
+  color: #fff;
+}
+
+#package .pillar p,
+#package .pillar:nth-child(2n) p {
+  color: rgba(226, 232, 239, 0.82);
+}
+
+#package .pillar a,
+#package .pillar:nth-child(2n) a {
+  color: var(--color-gold-light);
+  text-decoration-color: var(--color-gold);
+}
+
+/* The tag chip was navy on navy; invert it so it still reads as a chip. */
+#package .pillar .pillar-tag,
+#package .pillar:nth-child(2n) .pillar-tag {
+  color: var(--color-navy-deep);
+  background: var(--color-gold);
+}
+
+/* Terracotta on the gold Package A card measures 3.05:1, below the 4.5:1 AA
+   minimum for text this size. Navy on the same gold is 6.36:1. */
+#investment .price-card--primary .price-label,
+#investment .price-card--primary .price-features li::before {
+  color: var(--color-navy);
+}
