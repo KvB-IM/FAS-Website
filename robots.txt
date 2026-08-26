@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /apply.html
 Disallow: /thank-you.html
 
 Sitemap: https://fedadvisorsolutions.com/sitemap.xml

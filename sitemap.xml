@@ -5,19 +5,11 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://fedadvisorsolutions.com/opportunity.html</loc>
+    <loc>https://fedadvisorsolutions.com/offer.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://fedadvisorsolutions.com/workforce.html</loc>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://fedadvisorsolutions.com/program.html</loc>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://fedadvisorsolutions.com/pricing.html</loc>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://fedadvisorsolutions.com/apply.html</loc>
-    <priority>0.7</priority>
   </url>
 </urlset>

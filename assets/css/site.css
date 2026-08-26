@@ -1,827 +1,774 @@
 /* ==========================================================================
    Fed Advisor Solutions — Partner Agent Program
-   Design system + site styles
+   ==========================================================================
+   Design system notes
+   -------------------
+   Palette: four navies, two golds, one accent, five neutrals. The previous
+   concept used 31 distinct hex values including twelve near-identical navies
+   and four golds; everything now resolves to the tokens below.
+
+   Type: Boska (display serif) is reserved for headings, display numerals and
+   pull quotes. Satoshi carries everything else. The concept applied the
+   display face to 29 of 30 font-family rules, which flattened the hierarchy.
+
+   Components: one `.card` with modifiers replaces the five near-duplicate
+   card patterns (pillar / system-card / opportunity-row / profession-card /
+   credential-item).
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. Tokens
-   -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------- 1. Tokens */
 :root {
-  /* Brand — navy ramp, deepest to lightest.
-     The update concept shipped twelve near-identical navies and four golds.
-     Everything resolves to these. */
-  --navy-deep: #06172c;
-  --navy: #0b2545;
-  --navy-mid: #123253;
-  --navy-soft: #1b4470;
-  --navy-pale: #8fa1bf;
+  /* Navy ramp — deepest to lightest */
+  --navy-900: #06172c;
+  --navy-800: #0b2545;
+  --navy-700: #123253;
+  --navy-600: #1b4470;
 
+  /* Gold */
   --gold: #c9a227;
-  --gold-light: #e4cb72;
-  /* --gold is tuned for navy grounds; on white it needs the deeper shade. */
-  --gold-deep: #a8871a;
+  --gold-soft: #e4cb72;
 
-  /* Single accent. One job only: "not a fit" marks and required-field stars. */
+  /* Single accent, reserved for "not a fit" / caution signalling */
   --terracotta: #a84b2f;
 
-  /* Neutrals. The concept's crisp steel replaces the old warm cream. */
+  /* Neutrals */
+  --paper: #ffffff;
   --mist: #f4f7fa;
-  --cream: #e2e8ef;
-  --sand: #cfd8e3;
-  --ice: #e2e8ef;
-
+  --steel: #e2e8ef;
   --ink: #13233a;
-  --ink-soft: #3d4854;
   --muted: #5d6570;
-  --line: rgba(11, 37, 69, 0.14);
-  --line-light: rgba(226, 232, 239, 0.18);
-  --white: #ffffff;
 
-  /* Type — Boska carries headings and display numerals, Satoshi the rest. */
-  --serif: "Boska", Georgia, "Times New Roman", Times, serif;
-  --sans: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  /* Derived lines */
+  --line: rgba(11, 37, 69, 0.14);
+  --line-dark: rgba(226, 232, 239, 0.18);
+
+  /* Type */
+  --font-display: "Boska", Georgia, "Times New Roman", serif;
+  --font-body: "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
 
-  /* Space */
-  --gutter: 24px;
-  --maxw: 1180px;
-  --maxw-narrow: 760px;
+  --text-xs: clamp(0.75rem, 0.71rem + 0.18vw, 0.85rem);
+  --text-sm: clamp(0.875rem, 0.84rem + 0.18vw, 0.98rem);
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --text-lg: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
+  --text-xl: clamp(1.6rem, 1.25rem + 1.4vw, 2.4rem);
+  --text-2xl: clamp(2.1rem, 1.4rem + 2.8vw, 3.7rem);
+  --text-hero: clamp(2.6rem, 1.6rem + 4.2vw, 5.2rem);
 
-  /* Effects */
-  --radius: 4px;
-  --radius-lg: 8px;
-  --shadow-sm: 0 1px 2px rgba(6, 23, 44, 0.06), 0 2px 8px rgba(6, 23, 44, 0.06);
-  --shadow-md: 0 4px 12px rgba(6, 23, 44, 0.08), 0 12px 32px rgba(6, 23, 44, 0.1);
-  --shadow-lg: 0 18px 50px rgba(6, 23, 44, 0.18);
-  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+  --space-12: 5rem;
+  --space-16: 7rem;
+
+  --radius-sm: 0.35rem;
+  --radius-md: 0.7rem;
+  --radius-lg: 1.2rem;
+
+  --shadow-sm: 0 2px 8px rgba(11, 37, 69, 0.08);
+  --shadow-md: 0 12px 32px rgba(11, 37, 69, 0.12);
+  --shadow-lg: 0 26px 70px rgba(6, 23, 44, 0.18);
+
+  --content: 1180px;
+  --narrow: 760px;
+  --transition: 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --------------------------------------------------------------------------
-   2. Reset / base
-   -------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------- 2. Reset */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
-  scroll-padding-top: 96px;
+  scroll-padding-top: 6rem;
 }
 
 body {
-  margin: 0;
-  background: var(--white);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 17px;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
   line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: var(--ink);
+  background: var(--mist);
 }
 
-img {
-  max-width: 100%;
+img,
+picture,
+video,
+svg {
   display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
 }
 
 a {
-  color: var(--navy-mid);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-
-a:hover {
-  color: var(--gold-deep);
+  color: inherit;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--serif);
-  color: var(--navy);
+  font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1.14;
-  letter-spacing: -0.01em;
-  margin: 0 0 0.5em;
+  line-height: 1.08;
+  text-wrap: balance;
 }
 
-h1 {
-  font-size: clamp(2.35rem, 5.4vw, 3.9rem);
-}
-h2 {
-  font-size: clamp(1.9rem, 3.8vw, 2.85rem);
-}
-h3 {
-  font-size: clamp(1.2rem, 2vw, 1.4rem);
-  line-height: 1.25;
-}
-h4 {
-  font-size: 1.05rem;
-  line-height: 1.3;
-}
-
-p {
-  margin: 0 0 1.1em;
-}
-
-ul,
-ol {
-  margin: 0 0 1.1em;
-  padding-left: 1.15em;
-}
-
+p,
 li {
-  margin-bottom: 0.45em;
+  text-wrap: pretty;
 }
 
-strong {
-  font-weight: 700;
-  color: var(--navy);
-}
-
-/* On dark grounds the navy `strong` colour disappears — reclaim it. */
-.hero strong,
-.section--navy strong,
-.card--dark strong,
-.fit-panel--yes strong,
-.price-card--feature strong,
-.cta-band strong,
-.site-footer strong,
-.fact--navy strong,
-.fact--mid strong,
-.mockup__hero strong {
-  color: var(--white);
-}
-
-em {
-  font-style: italic;
-}
-
-hr {
-  border: 0;
-  border-top: 1px solid var(--line);
-  margin: 3rem 0;
+ul {
+  list-style: none;
 }
 
 ::selection {
-  background: var(--gold);
-  color: var(--navy-deep);
+  color: var(--paper);
+  background: var(--navy-800);
 }
 
 :focus-visible {
-  outline: 3px solid var(--gold);
-  outline-offset: 3px;
-  border-radius: 2px;
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
 }
 
 .skip-link {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  background: var(--gold);
-  color: var(--navy-deep);
-  padding: 12px 20px;
+  position: fixed;
+  z-index: 999;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   font-weight: 700;
-  z-index: 200;
+  color: var(--navy-800);
+  background: var(--gold);
+  border-radius: var(--radius-sm);
+  transform: translateY(-160%);
 }
+
 .skip-link:focus {
-  left: 0;
+  transform: translateY(0);
 }
 
-/* --------------------------------------------------------------------------
-   3. Layout primitives
-   -------------------------------------------------------------------------- */
-.wrap {
-  width: 100%;
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
+/* --------------------------------------------------------------- 3. Layout */
+.container {
+  width: min(var(--content), calc(100% - 2 * var(--space-5)));
+  margin-inline: auto;
 }
 
-.wrap--narrow {
-  max-width: var(--maxw-narrow);
+.container--narrow {
+  max-width: var(--narrow);
 }
 
 .section {
-  padding: clamp(56px, 8vw, 104px) 0;
+  padding-block: clamp(var(--space-10), 8vw, var(--space-16));
 }
 
 .section--tight {
-  padding: clamp(40px, 5vw, 64px) 0;
+  padding-block: clamp(var(--space-8), 5vw, var(--space-10));
 }
 
-.section--cream {
-  background: var(--cream);
+/* Grounds. Only three exist: paper (default), steel, and navy. */
+.section--steel {
+  background: var(--steel);
 }
 
 .section--navy {
-  background: var(--navy);
-  color: var(--ice);
+  color: var(--steel);
+  background: var(--navy-800);
 }
 
+.section--navy-deep {
+  color: var(--steel);
+  background: var(--navy-900);
+}
+
+.section--navy h1,
 .section--navy h2,
 .section--navy h3,
-.section--navy h4 {
-  color: var(--white);
-}
-
-.section--navy a {
-  color: var(--gold-light);
-}
-
-.section--line-top {
-  border-top: 1px solid var(--line);
+.section--navy h4,
+.section--navy-deep h1,
+.section--navy-deep h2,
+.section--navy-deep h3,
+.section--navy-deep h4 {
+  color: var(--paper);
 }
 
 .grid {
   display: grid;
-  gap: 28px;
+  gap: var(--space-5);
 }
 
-@media (min-width: 720px) {
-  .grid--2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .grid--3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (min-width: 700px) {
+  .grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: repeat(2, 1fr); }
+  .grid--4 { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (min-width: 960px) {
-  .grid--3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .grid--4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 620px) and (max-width: 959px) {
-  .grid--4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+@media (min-width: 1000px) {
+  .grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .grid--4 { grid-template-columns: repeat(4, 1fr); }
 }
 
 .split {
   display: grid;
-  gap: clamp(32px, 5vw, 64px);
+  gap: clamp(var(--space-6), 5vw, var(--space-10));
   align-items: center;
 }
 
 @media (min-width: 900px) {
-  .split {
-    grid-template-columns: 1fr 1fr;
-  }
-  .split--wide-left {
-    grid-template-columns: 1.15fr 0.85fr;
-  }
-  .split--wide-right {
-    grid-template-columns: 0.85fr 1.15fr;
-  }
-  .split--flip > *:first-child {
-    order: 2;
-  }
+  .split { grid-template-columns: 1fr 1fr; }
+  .split--wide-left { grid-template-columns: 1.15fr 0.85fr; }
+  .split--wide-right { grid-template-columns: 0.85fr 1.15fr; }
+  .split--flip > *:first-child { order: 2; }
 }
 
-/* --------------------------------------------------------------------------
-   4. Type helpers
-   -------------------------------------------------------------------------- */
+/* Use where one column is much taller than the other. */
+.split--top {
+  align-items: start;
+}
+
+/* ------------------------------------------------------------ 4. Type bits */
 .eyebrow {
-  font-family: var(--sans);
-  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold-deep);
-  margin: 0 0 14px;
+  color: var(--gold);
+  margin-bottom: var(--space-4);
 }
 
-.section--navy .eyebrow,
-.hero .eyebrow {
-  color: var(--gold);
+/* The short gold rule that opens every eyebrow. */
+.eyebrow::before {
+  content: "";
+  width: 2rem;
+  height: 2px;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.eyebrow--center {
+  justify-content: center;
+}
+
+.section-heading {
+  max-width: 44ch;
+  margin-bottom: var(--space-7);
+}
+
+.section-heading--center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.section-heading h2 {
+  font-size: var(--text-2xl);
+  color: var(--navy-800);
+}
+
+.section--navy .section-heading h2,
+.section--navy-deep .section-heading h2 {
+  color: var(--paper);
 }
 
 .lede {
-  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
-  line-height: 1.6;
-  color: var(--ink-soft);
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: var(--muted);
   max-width: 62ch;
+  margin-top: var(--space-4);
 }
 
-.section--navy .lede {
-  color: var(--ice);
+.section--navy .lede,
+.section--navy-deep .lede {
+  color: var(--steel);
 }
 
+/* Italic display accent used inside headings. */
 .accent {
-  color: var(--gold-deep);
   font-style: italic;
-}
-
-.section--navy .accent,
-.hero .accent {
   color: var(--gold);
-}
-
-.small {
-  font-size: 0.9rem;
 }
 
 .muted {
   color: var(--muted);
 }
 
-.section--navy .muted {
-  color: var(--navy-pale);
+.section--navy .muted,
+.section--navy-deep .muted {
+  color: rgba(226, 232, 239, 0.72);
 }
 
-.center {
-  text-align: center;
-}
-
-.section-head {
-  max-width: 780px;
-  margin-bottom: clamp(36px, 5vw, 56px);
-}
-
-.section-head.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.footnote {
-  font-size: 0.8rem;
-  line-height: 1.55;
+.fine {
+  font-size: var(--text-xs);
+  line-height: 1.6;
   color: var(--muted);
-  margin-top: 28px;
 }
 
-.section--navy .footnote {
-  color: var(--navy-pale);
+.section--navy .fine,
+.section--navy-deep .fine {
+  color: rgba(226, 232, 239, 0.66);
 }
 
-/* --------------------------------------------------------------------------
-   5. Buttons
-   -------------------------------------------------------------------------- */
-.btn {
+/* -------------------------------------------------------------- 5. Buttons */
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  font-family: var(--sans);
-  font-size: 0.95rem;
+  gap: var(--space-2);
+  padding: 0.95rem 1.6rem;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
   font-weight: 700;
-  letter-spacing: 0.02em;
   line-height: 1;
-  padding: 16px 28px;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  cursor: pointer;
   text-decoration: none;
-  transition: background 0.18s var(--ease), color 0.18s var(--ease),
-    border-color 0.18s var(--ease), transform 0.18s var(--ease),
-    box-shadow 0.18s var(--ease);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition), color var(--transition),
+    border-color var(--transition), transform var(--transition);
 }
 
-.btn:hover {
+.button:hover {
   transform: translateY(-1px);
 }
 
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn--gold {
+.button--gold {
+  color: var(--navy-900);
   background: var(--gold);
-  color: var(--navy-deep);
-  box-shadow: var(--shadow-sm);
-}
-.btn--gold:hover {
-  background: var(--gold-light);
-  color: var(--navy-deep);
-  box-shadow: var(--shadow-md);
 }
 
-.btn--navy {
-  background: var(--navy);
-  color: var(--white);
-}
-.btn--navy:hover {
-  background: var(--navy-mid);
-  color: var(--white);
+.button--gold:hover {
+  background: var(--gold-soft);
 }
 
-.btn--ghost {
-  background: transparent;
-  color: var(--navy);
-  border-color: rgba(11, 37, 69, 0.28);
-}
-.btn--ghost:hover {
-  border-color: var(--navy);
-  background: rgba(11, 37, 69, 0.04);
-  color: var(--navy);
+.button--navy {
+  color: var(--paper);
+  background: var(--navy-800);
 }
 
-.btn--ghost-light {
-  background: transparent;
-  color: var(--white);
-  border-color: var(--line-light);
+.button--navy:hover {
+  background: var(--navy-700);
 }
-.btn--ghost-light:hover {
+
+/* Outline on a dark ground. */
+.button--outline {
+  color: var(--paper);
+  border-color: rgba(226, 232, 239, 0.4);
+}
+
+.button--outline:hover {
+  color: var(--gold-soft);
   border-color: var(--gold);
-  color: var(--gold-light);
-  background: rgba(255, 255, 255, 0.04);
 }
 
-.btn--lg {
-  padding: 19px 36px;
-  font-size: 1rem;
+/* Outline on a light ground. */
+.button--ghost {
+  color: var(--navy-800);
+  border-color: var(--line);
 }
 
-.btn--block {
+.button--ghost:hover {
+  border-color: var(--navy-800);
+  background: rgba(11, 37, 69, 0.04);
+}
+
+.button--block {
   width: 100%;
 }
 
-.btn-row {
+.button-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: var(--space-3);
   align-items: center;
-  margin-top: 32px;
+  margin-top: var(--space-6);
 }
 
-.btn-row--center {
+.button-row--center {
   justify-content: center;
 }
 
-/* --------------------------------------------------------------------------
-   6. Header / nav
-   -------------------------------------------------------------------------- */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--navy-800);
+  text-decoration: none;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 2px;
+  transition: gap var(--transition);
+}
+
+.text-link:hover {
+  gap: var(--space-3);
+}
+
+.section--navy .text-link,
+.section--navy-deep .text-link {
+  color: var(--gold-soft);
+}
+
+/* --------------------------------------------------------------- 6. Header */
 .site-header {
   position: sticky;
-  top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: saturate(160%) blur(10px);
-  -webkit-backdrop-filter: saturate(160%) blur(10px);
-  border-bottom: 1px solid var(--line);
+  top: 0;
+  color: var(--steel);
+  background: rgba(6, 23, 44, 0.94);
+  border-bottom: 1px solid var(--line-dark);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.site-header::before {
-  content: "";
-  display: block;
-  height: 3px;
-  background: var(--gold);
-}
-
-.site-header__inner {
+.nav-shell {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  min-height: 74px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  gap: var(--space-5);
+  min-height: 4.5rem;
 }
 
+/* The FAS lockup — kept from the existing site. */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   text-decoration: none;
-  color: var(--navy);
   flex-shrink: 0;
 }
 
-.brand:hover {
-  color: var(--navy);
-}
-
-.brand__mark {
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-  border-radius: 3px;
-  background: var(--navy);
-  color: var(--gold);
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
+.brand-mark {
   display: grid;
   place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--navy-900);
+  background: var(--gold);
+  border-radius: var(--radius-sm);
 }
 
-.brand__name {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 1.05rem;
+.brand-copy {
+  display: flex;
+  flex-direction: column;
   line-height: 1.1;
-  letter-spacing: -0.01em;
-  display: block;
 }
 
-.brand__tag {
-  display: block;
-  font-family: var(--sans);
-  font-size: 0.62rem;
+.brand-copy strong {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold-deep);
-  margin-top: 3px;
+  color: var(--paper);
 }
 
-.nav {
+.brand-copy span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+.nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
-.nav__link {
-  font-size: 0.92rem;
+.nav-links a {
+  display: inline-block;
+  padding: 0.6rem 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--navy);
+  color: var(--steel);
   text-decoration: none;
-  padding: 10px 14px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   white-space: nowrap;
-  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  transition: color var(--transition), background var(--transition);
 }
 
-.nav__link:hover {
-  color: var(--gold-deep);
-  background: rgba(201, 162, 39, 0.08);
+.nav-links a:hover {
+  color: var(--gold-soft);
+  background: rgba(226, 232, 239, 0.06);
 }
 
-.nav__link[aria-current="page"] {
-  color: var(--gold-deep);
+.nav-links a[aria-current="page"] {
+  color: var(--gold);
 }
 
-.nav__cta {
-  margin-left: 10px;
-  padding: 13px 24px;
-  font-size: 0.9rem;
+.nav-links .button {
+  margin-left: var(--space-2);
+  color: var(--navy-900);
 }
 
-.nav-toggle {
+/* On the Apply page the CTA carries aria-current, and
+   `.nav-links a[aria-current]` (0-2-1) would otherwise paint gold text on the
+   gold button. This selector (0-3-1) keeps it navy. */
+.nav-links .button[aria-current="page"] {
+  color: var(--navy-900);
+}
+
+.nav-links .button:hover {
+  color: var(--navy-900);
+}
+
+.menu-toggle {
   display: none;
-  background: transparent;
-  border: 1px solid rgba(11, 37, 69, 0.2);
-  border-radius: var(--radius);
-  width: 46px;
-  height: 42px;
-  cursor: pointer;
-  padding: 0;
+  width: 2.75rem;
+  height: 2.5rem;
   align-items: center;
   justify-content: center;
+  color: var(--steel);
+  border: 1px solid var(--line-dark);
+  border-radius: var(--radius-sm);
 }
 
-.nav-toggle span,
-.nav-toggle span::before,
-.nav-toggle span::after {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: var(--navy);
-  position: relative;
-  transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+.menu-toggle svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
-.nav-toggle span::before,
-.nav-toggle span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-}
-.nav-toggle span::before {
-  top: -6px;
-}
-.nav-toggle span::after {
-  top: 6px;
-}
-
-.nav-toggle[aria-expanded="true"] span {
-  background: transparent;
-}
-.nav-toggle[aria-expanded="true"] span::before {
-  transform: translateY(6px) rotate(45deg);
-}
-.nav-toggle[aria-expanded="true"] span::after {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-@media (max-width: 960px) {
-  .nav-toggle {
+@media (max-width: 940px) {
+  .menu-toggle {
     display: inline-flex;
   }
 
-  .nav {
+  .nav-links {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
+    display: none;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    background: var(--white);
-    border-bottom: 1px solid var(--line);
-    box-shadow: var(--shadow-md);
-    padding: 12px var(--gutter) 24px;
-    display: none;
+    padding: var(--space-3) var(--space-5) var(--space-6);
+    background: var(--navy-900);
+    border-bottom: 1px solid var(--line-dark);
   }
 
-  .nav.is-open {
+  .nav-links.is-open {
     display: flex;
   }
 
-  .nav__link {
-    padding: 14px 4px;
-    border-bottom: 1px solid var(--line);
+  .nav-links a {
+    padding: 0.9rem 0.25rem;
+    font-size: var(--text-base);
+    border-bottom: 1px solid var(--line-dark);
     border-radius: 0;
-    font-size: 1rem;
   }
 
-  .nav__cta {
-    margin: 18px 0 0;
-    padding: 16px 24px;
+  .nav-links .button {
+    margin: var(--space-4) 0 0;
+    padding: 1rem;
+    border-bottom: 0;
+    justify-content: center;
   }
 }
 
-/* --------------------------------------------------------------------------
-   7. Hero
-   -------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------- 7. Hero */
 .hero {
   position: relative;
-  background: var(--navy);
-  color: var(--ice);
+  display: flex;
+  align-items: flex-end;
+  min-height: min(84vh, 760px);
+  padding-block: clamp(var(--space-10), 12vw, var(--space-16));
+  color: var(--steel);
+  background: var(--navy-900);
   overflow: hidden;
-  padding: clamp(56px, 8vw, 96px) 0 clamp(56px, 8vw, 88px);
 }
 
-.hero::after {
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 70% 30%;
+}
+
+/* Two-stop scrim: keeps the headline legible over any photo. */
+.hero-media::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-      ellipse at 78% 18%,
-      rgba(58, 91, 138, 0.5),
-      transparent 62%
+  background: linear-gradient(
+      100deg,
+      var(--navy-900) 8%,
+      rgba(6, 23, 44, 0.9) 42%,
+      rgba(6, 23, 44, 0.35) 78%
     ),
-    linear-gradient(180deg, transparent 55%, rgba(8, 27, 54, 0.85));
-  pointer-events: none;
+    linear-gradient(to top, var(--navy-900), transparent 45%);
 }
 
-.hero > * {
+.hero .container {
   position: relative;
   z-index: 1;
 }
 
+.hero-content {
+  max-width: 42rem;
+}
+
 .hero h1 {
-  color: var(--white);
-  max-width: 15ch;
+  font-size: var(--text-hero);
+  color: var(--paper);
 }
 
-.hero__lede {
-  font-size: clamp(1.05rem, 1.7vw, 1.24rem);
-  color: var(--ice);
-  max-width: 54ch;
-  line-height: 1.6;
+.hero-lede {
+  max-width: 46ch;
+  margin-top: var(--space-5);
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: var(--steel);
 }
 
-.hero__portrait {
-  position: relative;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  aspect-ratio: 4 / 5;
+.hero-note {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: rgba(226, 232, 239, 0.66);
 }
 
-.hero__portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* Inline stat row with hairline dividers. */
+.stat-row {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line-dark);
 }
 
-.hero__badge {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, transparent, rgba(8, 27, 54, 0.94) 55%);
-  padding: 44px 24px 22px;
-}
+@media (min-width: 620px) {
+  .stat-row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
 
-.hero__badge strong {
-  display: block;
-  font-family: var(--serif);
-  color: var(--white);
-  font-size: 1.05rem;
-}
-
-.hero__badge span {
-  display: block;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  font-weight: 700;
-  margin-top: 5px;
-}
-
-.hero--compact {
-  padding: clamp(48px, 6vw, 76px) 0;
-}
-
-.hero--compact h1 {
-  max-width: 20ch;
-  margin-bottom: 18px;
-}
-
-/* Trust strip beneath hero */
-.trust-strip {
-  background: var(--navy-deep);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 20px 0;
-}
-
-.trust-strip__inner {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 34px;
-  align-items: center;
-  justify-content: center;
-}
-
-.trust-strip__item {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--navy-pale);
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.trust-strip__item::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* --------------------------------------------------------------------------
-   8. Stats
-   -------------------------------------------------------------------------- */
-.stat {
-  border-top: 3px solid var(--gold);
-  padding-top: 20px;
+  .stat-row .stat + .stat {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--line-dark);
+  }
 }
 
 .stat__num {
-  font-family: var(--serif);
-  font-size: clamp(2.3rem, 4.4vw, 3.1rem);
-  font-weight: 700;
-  line-height: 1;
-  color: var(--navy);
-  letter-spacing: -0.02em;
   display: block;
-  margin-bottom: 12px;
-}
-
-.section--navy .stat__num {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
   color: var(--gold);
 }
 
 .stat__label {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--ink-soft);
-  margin: 0;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--steel);
 }
 
-.section--navy .stat__label {
-  color: var(--ice);
+/* Compact hero for interior pages — no photo, shorter. */
+.hero--interior {
+  min-height: 0;
+  align-items: center;
+  padding-block: clamp(var(--space-10), 9vw, var(--space-12));
+  background: var(--navy-800);
 }
 
-/* --------------------------------------------------------------------------
-   9. Cards
-   -------------------------------------------------------------------------- */
+.hero--interior h1 {
+  font-size: var(--text-2xl);
+}
+
+/* ---------------------------------------------------- 8. Credential strip */
+.credential-strip {
+  padding-block: var(--space-5);
+  color: var(--steel);
+  background: var(--navy-900);
+  border-top: 1px solid var(--line-dark);
+}
+
+.credential-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 760px) {
+  .credential-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.credential-item strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--gold);
+}
+
+.credential-item span {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: rgba(226, 232, 239, 0.78);
+}
+
+/* ---------------------------------------------------------------- 9. Cards */
+/* One card component. Modifiers cover every variant the concept had as
+   separately-named blocks. */
 .card {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 30px 28px;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  padding: var(--space-6);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .card:hover {
@@ -829,50 +776,89 @@ hr {
   box-shadow: var(--shadow-md);
 }
 
-.card h3,
-.card h4 {
-  margin-bottom: 10px;
+.card h3 {
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+  margin-bottom: var(--space-3);
 }
 
-.card p:last-child {
-  margin-bottom: 0;
+.card p {
+  color: var(--muted);
+  font-size: var(--text-sm);
 }
 
-.card__num {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--navy);
-  color: var(--gold);
-  font-family: var(--serif);
+.card p + p {
+  margin-top: var(--space-3);
+}
+
+/* The index + tag row that opens a card. */
+.card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.card__index {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 18px;
+  color: var(--gold);
+  line-height: 1;
 }
 
-.card--dark {
-  background: var(--navy-mid);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: var(--ice);
+.card__tag {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.card--dark h3,
-.card--dark h4 {
-  color: var(--white);
+/* The short outcome line that closes a card. Needs to outrank `.card p + p`
+   (specificity 0-1-2), or its `margin-top: auto` loses and the line stops
+   pinning to the bottom of the card. */
+.card .card__outcome {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-style: italic;
+  color: var(--navy-800);
+  border-top: 1px solid var(--line);
 }
 
-.card--dark .card__num {
-  background: var(--gold);
-  color: var(--navy-deep);
+.card--navy {
+  color: var(--steel);
+  background: var(--navy-700);
+  border-color: var(--line-dark);
 }
 
+.card--navy h3 {
+  color: var(--paper);
+}
+
+.card--navy p {
+  color: rgba(226, 232, 239, 0.82);
+}
+
+.card--navy .card__tag {
+  color: rgba(226, 232, 239, 0.6);
+}
+
+.card--navy .card__outcome {
+  color: var(--gold-soft);
+  border-top-color: var(--line-dark);
+}
+
+/* Plain variant — no chrome, for dense editorial rows. */
 .card--plain {
-  background: transparent;
+  padding: var(--space-5) 0;
+  background: none;
   border: 0;
-  box-shadow: none;
-  padding: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
 }
 
 .card--plain:hover {
@@ -880,705 +866,392 @@ hr {
   box-shadow: none;
 }
 
-/* Problem cards (negative framing) */
-.card--problem {
-  border-left: 3px solid var(--sand);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+.section--navy .card--plain,
+.section--navy-deep .card--plain {
+  border-top-color: var(--line-dark);
 }
 
-.card--problem h3 {
-  color: var(--navy);
+.section--navy .card--plain h3,
+.section--navy-deep .card--plain h3 {
+  color: var(--paper);
 }
 
-/* Feature row — numbered list with rules */
-.feature-row {
-  display: grid;
-  gap: 18px 32px;
-  padding: 30px 0;
-  border-top: 1px solid var(--line);
-  align-items: start;
+.section--navy .card--plain p,
+.section--navy-deep .card--plain p {
+  color: rgba(226, 232, 239, 0.82);
 }
 
-.feature-row:last-child {
-  border-bottom: 1px solid var(--line);
-}
-
-@media (min-width: 800px) {
-  .feature-row {
-    grid-template-columns: 60px 300px 1fr;
-    gap: 32px;
-  }
-}
-
-.feature-row__num {
-  font-family: var(--serif);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--gold);
-  line-height: 1;
-}
-
-.feature-row h3 {
-  margin: 0;
-}
-
-.feature-row p {
-  margin: 0;
-  color: var(--ink-soft);
-}
-
-/* --------------------------------------------------------------------------
-   10. Checklists
-   -------------------------------------------------------------------------- */
-.checklist {
-  list-style: none;
+/* Media card — photo above copy. */
+.card--media {
   padding: 0;
-  margin: 0;
+  overflow: hidden;
 }
 
-.checklist li {
+.card--media img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.card--media .card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--space-5);
+}
+
+/* --------------------------------------------------------------- 10. Quote */
+.pull-quote {
+  padding: var(--space-7) 0;
+  border-block: 1px solid var(--line);
+  text-align: center;
+}
+
+.section--navy .pull-quote,
+.section--navy-deep .pull-quote {
+  border-block-color: var(--line-dark);
+}
+
+.pull-quote blockquote {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--navy-800);
+  max-width: 34ch;
+  margin-inline: auto;
+}
+
+.section--navy .pull-quote blockquote,
+.section--navy-deep .pull-quote blockquote {
+  color: var(--paper);
+}
+
+.pull-quote cite {
+  display: block;
+  margin-top: var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ------------------------------------------------------------- 11. Fit list */
+.fit-panel {
+  height: 100%;
+  padding: var(--space-6);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.fit-panel--navy {
+  color: var(--steel);
+  background: var(--navy-800);
+  border-color: var(--navy-800);
+}
+
+.fit-panel h3 {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-5);
+  color: var(--navy-800);
+}
+
+.fit-panel--navy h3 {
+  color: var(--paper);
+}
+
+.fit-list li {
   position: relative;
-  padding-left: 32px;
-  margin-bottom: 14px;
+  padding-left: 1.9rem;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
   line-height: 1.55;
 }
 
-.checklist li::before {
+.fit-panel--navy .fit-list li {
+  color: rgba(226, 232, 239, 0.88);
+}
+
+/* Gold check for the "ready" column. */
+.fit-list--yes li::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0.42em;
-  width: 16px;
-  height: 9px;
-  border-left: 2.5px solid var(--gold);
-  border-bottom: 2.5px solid var(--gold);
+  width: 0.9rem;
+  height: 0.5rem;
+  border-left: 2px solid var(--gold);
+  border-bottom: 2px solid var(--gold);
   transform: rotate(-45deg);
 }
 
-.checklist--tight li {
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-}
-
-.crosslist {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.crosslist li {
-  position: relative;
-  padding-left: 32px;
-  margin-bottom: 14px;
-  line-height: 1.55;
-}
-
-.crosslist li::before,
-.crosslist li::after {
+/* Terracotta cross for the "not a fit" column — the one accent use. */
+.fit-list--no li::before,
+.fit-list--no li::after {
   content: "";
   position: absolute;
-  left: 2px;
-  top: 0.72em;
-  width: 15px;
-  height: 2.5px;
-  background: var(--navy-pale);
+  left: 0.1rem;
+  top: 0.68em;
+  width: 0.85rem;
+  height: 2px;
+  background: var(--terracotta);
 }
 
-.crosslist li::before {
-  transform: rotate(45deg);
-}
-.crosslist li::after {
-  transform: rotate(-45deg);
+.fit-list--no li::before { transform: rotate(45deg); }
+.fit-list--no li::after { transform: rotate(-45deg); }
+
+/* ------------------------------------------------------------- 12. Timeline */
+.timeline {
+  display: grid;
+  gap: var(--space-5);
+  counter-reset: phase;
 }
 
-/* Fit / not-fit panels */
-.fit-panel {
-  border-radius: var(--radius-lg);
-  padding: 34px 30px;
-  height: 100%;
+@media (min-width: 860px) {
+  .timeline {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.fit-panel--yes {
-  background: var(--navy);
-  color: var(--ice);
+.timeline-step {
+  padding-top: var(--space-5);
+  border-top: 2px solid var(--gold);
 }
 
-.fit-panel--yes h3 {
-  color: var(--white);
-}
-
-.fit-panel--no {
-  background: var(--cream);
-  border: 1px solid var(--sand);
-}
-
-.fit-panel__tag {
-  display: inline-block;
-  font-size: 0.7rem;
+.timeline-step__phase {
+  display: block;
+  font-size: var(--text-xs);
   font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  border-radius: 2px;
-  margin-bottom: 18px;
-}
-
-.fit-panel--yes .fit-panel__tag {
-  background: var(--gold);
-  color: var(--navy-deep);
-}
-
-.fit-panel--no .fit-panel__tag {
-  background: var(--sand);
-  color: var(--navy);
-}
-
-/* --------------------------------------------------------------------------
-   11. Website mockup (agent-branded site preview)
-   -------------------------------------------------------------------------- */
-.mockup {
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-.mockup__bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #eef1f5;
-  border-bottom: 1px solid var(--line);
-}
-
-.mockup__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #c8ced6;
-  flex-shrink: 0;
-}
-
-.mockup__url {
-  flex: 1;
-  background: var(--white);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 0.74rem;
-  color: var(--muted);
-  margin-left: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mockup__hero {
-  background: var(--navy);
-  color: var(--white);
-  padding: 26px 24px;
-}
-
-.mockup__hero p {
-  margin: 0;
-}
-
-.mockup__kicker {
-  font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold);
-  font-weight: 700;
+  margin-bottom: var(--space-2);
 }
 
-.mockup__title {
-  font-family: var(--serif);
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 8px 0 6px !important;
+.timeline-step h3 {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-2);
+  color: var(--navy-800);
 }
 
-.mockup__byline {
-  font-size: 0.82rem;
-  color: var(--ice);
+.section--navy .timeline-step h3,
+.section--navy-deep .timeline-step h3 {
+  color: var(--paper);
 }
 
-.mockup__btn {
-  display: inline-block;
-  margin-top: 16px;
-  background: var(--gold);
-  color: var(--navy-deep);
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 10px 18px;
-  border-radius: 3px;
+.timeline-step p {
+  font-size: var(--text-sm);
+  color: var(--muted);
 }
 
-.mockup__pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  padding: 16px 24px;
-  background: var(--cream);
-  border-bottom: 1px solid var(--line);
+.section--navy .timeline-step p,
+.section--navy-deep .timeline-step p {
+  color: rgba(226, 232, 239, 0.82);
 }
 
-.pill {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background: var(--white);
-  border: 1px solid var(--sand);
-  color: var(--navy);
-  white-space: nowrap;
-}
-
-.mockup__list {
-  list-style: none;
-  margin: 0;
-  padding: 8px 24px 20px;
-}
-
-.mockup__list li {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  padding: 10px 0;
-  border-bottom: 1px solid var(--line);
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.mockup__list li:last-child {
-  border-bottom: 0;
-}
-
-.mockup__list li::after {
-  content: "→";
-  color: var(--gold-deep);
-  font-size: 0.9rem;
-}
-
-/* --------------------------------------------------------------------------
-   12. Pricing
-   -------------------------------------------------------------------------- */
-.price-grid {
+/* -------------------------------------------------------------- 13. Pricing */
+.pricing-layout {
   display: grid;
-  gap: 26px;
+  gap: var(--space-5);
   align-items: stretch;
 }
 
 @media (min-width: 900px) {
-  .price-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .pricing-layout {
+    grid-template-columns: 1.1fr 0.9fr;
   }
 }
 
 .price-card {
   display: flex;
   flex-direction: column;
-  background: var(--white);
+  padding: var(--space-7);
+  background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 34px 30px;
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
 }
 
-.price-card--feature {
-  background: var(--navy);
-  color: var(--ice);
-  border-color: var(--navy);
+.price-card--primary {
+  color: var(--steel);
+  background: var(--navy-800);
+  border-color: var(--navy-800);
   box-shadow: var(--shadow-lg);
 }
 
-.price-card--feature h3 {
-  color: var(--white);
-}
-
-.price-card__tag {
-  font-size: 0.68rem;
+.price-label {
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold-deep);
-  margin-bottom: 16px;
-}
-
-.price-card--feature .price-card__tag {
   color: var(--gold);
-}
-
-.price-card__amount {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.price-card__amount b {
-  font-family: var(--serif);
-  font-size: 3.1rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--navy);
-}
-
-.price-card--feature .price-card__amount b {
-  color: var(--gold);
-}
-
-.price-card__amount span {
-  font-size: 0.92rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.price-card--feature .price-card__amount span {
-  color: var(--navy-pale);
+  margin-bottom: var(--space-3);
 }
 
 .price-card h3 {
-  font-size: 1.15rem;
-  margin: 14px 0 20px;
-  padding-bottom: 20px;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+.price-card--primary h3 {
+  color: var(--paper);
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-5);
+  padding-bottom: var(--space-5);
   border-bottom: 1px solid var(--line);
 }
 
-.price-card--feature h3 {
-  border-bottom-color: var(--line-light);
+.price-card--primary .price {
+  border-bottom-color: var(--line-dark);
 }
 
-.price-card .checklist {
+.price strong {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--navy-800);
+}
+
+.price-card--primary .price strong {
+  color: var(--gold);
+}
+
+.price span {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.price-card--primary .price span {
+  color: rgba(226, 232, 239, 0.7);
+}
+
+.price-features {
   flex: 1;
 }
 
-.price-card--feature .checklist li::before {
-  border-color: var(--gold);
-}
-
-.price-card .btn {
-  margin-top: 26px;
-}
-
-.value-note {
-  background: var(--cream);
-  border-left: 3px solid var(--gold);
-  padding: 22px 26px;
-  margin-top: 40px;
-  border-radius: 0 var(--radius) var(--radius) 0;
-}
-
-.value-note p {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-  color: var(--navy);
-}
-
-/* Included-in-all strip */
-.included-strip {
-  display: grid;
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin-bottom: 44px;
-}
-
-@media (min-width: 720px) {
-  .included-strip {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-.included-strip__item {
-  background: var(--white);
-  padding: 22px 18px;
-  text-align: center;
-}
-
-.included-strip__item b {
-  display: block;
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  color: var(--navy);
-  line-height: 1.3;
-}
-
-.included-strip__item span {
-  display: block;
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--gold-deep);
-  margin-bottom: 8px;
-}
-
-/* --------------------------------------------------------------------------
-   13. Economics chart
-   -------------------------------------------------------------------------- */
-.econ {
-  display: grid;
-  gap: 34px;
-}
-
-@media (min-width: 1000px) {
-  .econ {
-    grid-template-columns: 1.55fr 1fr;
-    gap: 44px;
-  }
-}
-
-.chart {
-  background: var(--cream);
-  border-radius: var(--radius-lg);
-  padding: 32px 28px 24px;
-}
-
-.chart__title {
-  font-family: var(--serif);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--navy);
-  margin: 0 0 4px;
-}
-
-.chart__sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin: 0 0 28px;
-}
-
-.chart__plot {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(14px, 3vw, 34px);
-  align-items: end;
-  height: 340px;
-  border-bottom: 2px solid var(--sand);
-  padding-bottom: 0;
-}
-
-.bar {
+.price-features li {
   position: relative;
+  padding-left: 1.9rem;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.price-features li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: 0.9rem;
+  height: 0.5rem;
+  border-left: 2px solid var(--gold);
+  border-bottom: 2px solid var(--gold);
+  transform: rotate(-45deg);
+}
+
+.price-card--primary .price-features li {
+  color: rgba(226, 232, 239, 0.9);
+}
+
+.pricing-note {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.price-card--primary .pricing-note {
+  color: rgba(226, 232, 239, 0.7);
+}
+
+.price-card .button {
+  margin-top: var(--space-5);
+}
+
+/* ------------------------------------------------------------------ 14. FAQ */
+.faq-list {
+  border-top: 1px solid var(--line);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq-question {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  height: 100%;
-}
-
-.bar__value {
-  font-family: var(--serif);
-  font-size: clamp(1.3rem, 3vw, 1.95rem);
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 10px;
-  line-height: 1;
-}
-
-.bar--gold .bar__value {
-  color: var(--gold-deep);
-}
-
-.bar__fill {
-  width: 100%;
-  border-radius: 3px 3px 0 0;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 8px 16px;
-  color: var(--white);
-  text-align: center;
-  transition: height 0.9s var(--ease);
-}
-
-.bar--light .bar__fill {
-  background: var(--navy-soft);
-}
-.bar--navy .bar__fill {
-  background: var(--navy);
-}
-.bar--gold .bar__fill {
-  background: var(--gold);
-  color: var(--navy-deep);
-}
-
-.bar__mo {
-  font-size: 0.82rem;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-5) 0;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 700;
-  letter-spacing: 0.02em;
+  color: var(--navy-800);
 }
 
-.bar__count {
-  font-family: var(--serif);
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
-  font-weight: 700;
-  line-height: 1;
-  opacity: 0.45;
-}
-
-.bar__unit {
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.chart__labels {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(14px, 3vw, 34px);
-  margin-top: 12px;
-}
-
-.chart__labels span {
-  text-align: center;
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 0.98rem;
-  color: var(--navy);
-}
-
-@media (max-width: 560px) {
-  .chart {
-    padding: 26px 18px 20px;
-  }
-  .chart__plot {
-    height: 280px;
-  }
-  .chart__labels span {
-    font-size: 0.8rem;
-  }
-}
-
-.econ-facts {
-  display: grid;
-  gap: 16px;
-  align-content: start;
-}
-
-.fact {
-  border-radius: var(--radius);
-  padding: 22px 24px;
-}
-
-.fact--navy {
-  background: var(--navy);
-  color: var(--ice);
-}
-.fact--mid {
-  background: var(--navy-mid);
-  color: var(--ice);
-}
-.fact--gold {
-  background: var(--gold);
-  color: var(--navy-deep);
-}
-
-.fact__label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin: 0 0 6px;
-}
-
-.fact--navy .fact__label,
-.fact--mid .fact__label {
-  color: var(--gold);
-}
-
-.fact--gold .fact__label {
-  color: var(--navy);
-}
-
-.fact__num {
-  font-family: var(--serif);
-  font-size: clamp(2rem, 4vw, 2.7rem);
-  font-weight: 700;
-  line-height: 1;
-  margin: 0 0 8px;
-  color: var(--white);
-}
-
-.fact--gold .fact__num {
-  color: var(--navy-deep);
-}
-
-.fact__note {
-  font-size: 0.85rem;
-  font-style: italic;
-  margin: 0;
-  opacity: 0.9;
-}
-
-/* --------------------------------------------------------------------------
-   14. Steps
-   -------------------------------------------------------------------------- */
-.steps {
-  counter-reset: step;
-  display: grid;
-  gap: 26px;
-}
-
-@media (min-width: 860px) {
-  .steps {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.step {
+.faq-icon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
   position: relative;
-  padding-top: 26px;
-  border-top: 3px solid var(--gold);
 }
 
-.step__num {
-  font-family: var(--serif);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--gold-deep);
+.faq-icon::before,
+.faq-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.85rem;
+  height: 2px;
+  background: var(--gold);
+  transform: translate(-50%, -50%);
+  transition: transform var(--transition);
+}
+
+.faq-icon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.faq-item.is-open .faq-icon::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.faq-answer {
+  display: none;
+  padding-bottom: var(--space-5);
+  max-width: 70ch;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.faq-item.is-open .faq-answer {
   display: block;
-  margin-bottom: 10px;
 }
 
-.section--navy .step__num {
-  color: var(--gold);
-}
-
-.step h3 {
-  margin-bottom: 8px;
-}
-
-.step p {
-  margin: 0;
-  font-size: 0.98rem;
-}
-
-/* --------------------------------------------------------------------------
-   15. Forms
-   -------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------- 15. Form */
 .form-shell {
-  background: var(--white);
+  padding: clamp(var(--space-5), 4vw, var(--space-7));
+  background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: clamp(28px, 4vw, 44px);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-grid {
   display: grid;
-  gap: 20px;
+  gap: var(--space-4);
 }
 
 @media (min-width: 640px) {
@@ -1590,7 +1263,7 @@ hr {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: var(--space-2);
 }
 
 .field--full {
@@ -1598,40 +1271,38 @@ hr {
 }
 
 .field label {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--navy);
-  letter-spacing: 0.01em;
+  color: var(--navy-800);
 }
 
-.field label .req {
-  color: var(--gold-deep);
+.field .req {
+  color: var(--terracotta);
 }
 
 .field input,
 .field select,
 .field textarea {
-  font-family: var(--sans);
-  font-size: 1rem;
-  color: var(--ink);
-  background: var(--white);
-  border: 1px solid rgba(11, 37, 69, 0.22);
-  border-radius: var(--radius);
-  padding: 13px 14px;
   width: 100%;
-  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  padding: 0.8rem 0.85rem;
+  font-size: var(--text-base);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid rgba(11, 37, 69, 0.22);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .field select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%230b2545' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 38px;
+  background-position: right 0.9rem center;
+  padding-right: 2.4rem;
 }
 
 .field textarea {
-  min-height: 120px;
+  min-height: 7rem;
   resize: vertical;
 }
 
@@ -1643,35 +1314,30 @@ hr {
   box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
 }
 
-.field__hint {
-  font-size: 0.78rem;
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.5;
   color: var(--muted);
 }
 
-.checkbox {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: var(--ink-soft);
-}
-
 .checkbox input {
-  width: 18px;
-  height: 18px;
+  width: 1.1rem;
+  height: 1.1rem;
   flex-shrink: 0;
-  margin-top: 2px;
-  accent-color: var(--navy);
+  margin-top: 0.25rem;
+  accent-color: var(--navy-800);
 }
 
 .form-status {
-  margin-top: 20px;
-  padding: 14px 18px;
-  border-radius: var(--radius);
-  font-size: 0.92rem;
-  font-weight: 600;
   display: none;
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
 }
 
 .form-status.is-visible {
@@ -1679,17 +1345,18 @@ hr {
 }
 
 .form-status--error {
-  background: #fdf0ef;
-  border: 1px solid #e6b7b2;
-  color: #8c2f26;
+  color: #7d2f1c;
+  background: #fbeeea;
+  border: 1px solid rgba(168, 75, 47, 0.35);
 }
 
 .form-status--ok {
-  background: #eef6ef;
-  border: 1px solid #b9d7bd;
-  color: #23632c;
+  color: var(--navy-800);
+  background: var(--steel);
+  border: 1px solid var(--line);
 }
 
+/* Honeypot — hidden from people, filled in by bots. */
 .hp-field {
   position: absolute;
   left: -9999px;
@@ -1698,534 +1365,355 @@ hr {
   overflow: hidden;
 }
 
-/* --------------------------------------------------------------------------
-   16. CTA band
-   -------------------------------------------------------------------------- */
-.cta-band {
-  background: var(--navy-deep);
-  color: var(--ice);
-  padding: clamp(52px, 7vw, 86px) 0;
-  text-align: center;
+/* ------------------------------------------------------- 16. Contact panel */
+.contact-panel {
+  padding: var(--space-6);
+  color: var(--steel);
+  background: var(--navy-800);
+  border-radius: var(--radius-md);
+  height: 100%;
 }
 
-.cta-band h2 {
-  color: var(--white);
-  max-width: 22ch;
-  margin-left: auto;
-  margin-right: auto;
+.contact-panel h3 {
+  font-size: var(--text-lg);
+  color: var(--paper);
+  margin-bottom: var(--space-3);
 }
 
-.cta-band p {
-  color: var(--ice);
-  max-width: 56ch;
-  margin-left: auto;
-  margin-right: auto;
+.contact-panel p {
+  font-size: var(--text-sm);
+  color: rgba(226, 232, 239, 0.85);
 }
 
-/* --------------------------------------------------------------------------
-   17. Footer
-   -------------------------------------------------------------------------- */
-.site-footer {
-  background: var(--navy);
-  color: var(--navy-pale);
-  padding: clamp(48px, 6vw, 72px) 0 34px;
-  font-size: 0.92rem;
-}
-
-.site-footer a {
-  color: var(--ice);
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  color: var(--gold-light);
-  text-decoration: underline;
-}
-
-.footer-grid {
-  display: grid;
-  gap: 36px;
-  padding-bottom: 36px;
-  border-bottom: 1px solid var(--line-light);
-}
-
-@media (min-width: 820px) {
-  .footer-grid {
-    grid-template-columns: 1.6fr 1fr 1fr;
-    gap: 48px;
-  }
-}
-
-.footer-brand .brand {
-  color: var(--white);
-  margin-bottom: 16px;
-}
-
-.footer-brand .brand__mark {
-  background: var(--gold);
-  color: var(--navy-deep);
-}
-
-.footer-brand p {
-  max-width: 42ch;
-  line-height: 1.6;
-}
-
-.footer-col h4 {
-  color: var(--white);
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.footer-col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer-col li {
-  margin-bottom: 11px;
-}
-
-.legal {
-  padding-top: 28px;
-  display: grid;
-  gap: 18px;
-  font-size: 0.79rem;
-  line-height: 1.6;
-}
-
-.legal p {
-  margin: 0;
-}
-
-.disclosure {
-  background: rgba(255, 255, 255, 0.05);
-  border-left: 2px solid var(--gold);
-  padding: 16px 20px;
-  border-radius: 0 var(--radius) var(--radius) 0;
-  color: var(--ice);
-}
-
-.legal__bottom {
+.contact-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
-/* --------------------------------------------------------------------------
-   18. Reveal-on-scroll
-   -------------------------------------------------------------------------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
-}
-
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-  .bar__fill {
-    transition: none;
-  }
-  .btn:hover,
-  .card:hover {
-    transform: none;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   19. Print
-   -------------------------------------------------------------------------- */
-@media print {
-  .site-header,
-  .cta-band,
-  .nav-toggle,
-  .btn {
-    display: none !important;
-  }
-  body {
-    font-size: 11pt;
-  }
-  .section {
-    padding: 18pt 0;
-  }
-  .reveal {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* --------------------------------------------------------------------------
-   21. Hero application form
-   The form replaced the portrait in the hero, so it is a white card sitting on
-   navy. Two things follow from that: text inside must not inherit the hero's
-   light colour, and the column is far narrower than a full-width form section.
-   -------------------------------------------------------------------------- */
-.split--hero-form {
-  align-items: start;
-  /* Narrower than the default .split gap: at ~1100px that clawed back around
-     55px, all of which the form column needs more than the whitespace does. */
-  gap: clamp(28px, 3vw, 52px);
-}
-
-/* .split pairs its columns from 900px, but at 900-1040px that leaves the form
-   column under ~420px — too narrow to pair fields, so it stacks and turns into
-   a tall thin strip. Hold the hero stacked through that band instead, with the
-   card capped so it doesn't sprawl across the full page. */
-@media (min-width: 900px) and (max-width: 1039px) {
-  .split--hero-form {
-    grid-template-columns: 1fr;
-  }
-  .split--hero-form .hero__form {
-    max-width: 680px;
-  }
-}
-
-@media (min-width: 1040px) {
-  .split--hero-form {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1140px) {
-  .split--hero-form {
-    grid-template-columns: 0.95fr 1.05fr;
-  }
-}
-
-.hero .form-shell {
-  /* .hero sets color:var(--ice); anything added to the card later would be
-     near-invisible on white without this. */
-  color: var(--ink);
-  padding: clamp(22px, 2.6vw, 34px);
-}
-
-.hero__form .eyebrow {
-  /* --gold is tuned for navy; on white it needs the deeper shade to stay
-     readable. */
-  color: var(--gold-deep);
-  margin-bottom: 4px;
-}
-
-.hero__form-title {
-  font-size: clamp(1.3rem, 2vw, 1.65rem);
-  line-height: 1.25;
-  margin: 0 0 8px;
-}
-
-.hero__form-note {
-  /* --muted is too light for small text on the white card. */
-  color: var(--ink-soft);
-  font-size: 0.92rem;
-  line-height: 1.6;
-  margin: 0 0 22px;
-}
-
-/* Same reason — the hint under the submit button sits on white too. */
-.hero__form .field__hint {
-  color: var(--muted);
-}
-
-/* The shared .form-grid--2 goes two-up at a 640px *viewport*, which says
-   nothing about how wide this card actually is. Ask the card instead: it is a
-   query container, so the fields pair up whenever there is genuinely room,
-   at every viewport width. Without this the card is ~440px yet fully stacked
-   between 900px and 1140px, which is what made it look thin on a laptop. */
-.hero__form {
-  container-type: inline-size;
-  container-name: heroform;
-}
-
-.hero__form .form-grid--2 {
-  grid-template-columns: 1fr;
-  gap: 16px 18px;
-}
-
-/* Viewport fallback first, for browsers without container queries... */
-@media (min-width: 1140px) {
-  .hero__form .form-grid--2 {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* ...then the container query, which wins wherever it is supported. */
-@container heroform (min-width: 400px) {
-  .hero__form .form-grid--2 {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-/* ==========================================================================
-   23. Visual refresh — the update concept's language, applied to the
-       existing markup.
-   ==========================================================================
-   Appended deliberately: every rule here overrides an earlier one at equal
-   specificity, so nothing above had to be edited and the hero-form fixes stay
-   exactly as they were. Three changes carry the concept:
-
-     - a cool page ground instead of flat white
-     - Boska headings at a larger display scale, with the gold italic accent
-     - the eyebrow's short gold rule, and serif numerals in place of the
-       filled circles
-   ========================================================================== */
-
-body {
-  color: var(--ink);
-  background: var(--mist);
-}
-
-/* ---------------------------------------------------------- 23.1 Headings */
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--serif);
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  text-wrap: balance;
-}
-
-h1 {
-  font-size: clamp(2.6rem, 1.6rem + 4.2vw, 5.2rem);
-  line-height: 1.04;
-}
-
-h2 {
-  font-size: clamp(2.1rem, 1.4rem + 2.8vw, 3.7rem);
-  line-height: 1.06;
-}
-
-h3 {
-  font-size: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
-  line-height: 1.2;
-}
-
-/* The hero form title sits inside a card and must not scale like a page
-   heading. */
-.hero__form-title {
-  font-size: clamp(1.3rem, 2vw, 1.7rem);
-  line-height: 1.2;
-}
-
-.accent {
-  font-style: italic;
-  color: var(--gold-deep);
-}
-
-.hero .accent,
-.section--navy .accent,
-.cta-band .accent {
-  color: var(--gold);
-}
-
-/* ----------------------------------------------------------- 23.2 Eyebrow */
-/* The concept opens every eyebrow with a short gold rule. */
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  content: "";
-  width: 2rem;
-  height: 2px;
-  flex-shrink: 0;
-  background: currentColor;
-}
-
-/* Inside the hero card the rule crowds a tight stack. */
-.hero__form .eyebrow::before {
-  display: none;
-}
-
-.section-head.center .eyebrow,
-.cta-band .eyebrow {
-  justify-content: center;
-}
-
-/* ------------------------------------------------------------- 23.3 Cards */
-/* Serif numeral replaces the filled circle — the concept's card index. */
-.card__num,
-.feature-row__num,
-.step__num {
-  font-family: var(--serif);
-  font-weight: 700;
-  color: var(--gold-deep);
-  background: none;
-  line-height: 1;
-}
-
-.card__num {
-  display: block;
-  width: auto;
-  height: auto;
-  border-radius: 0;
-  font-size: 1.4rem;
-  margin-bottom: 14px;
-}
-
-.card--dark .card__num,
-.section--navy .card__num,
-.section--navy .step__num {
-  color: var(--gold);
-  background: none;
-}
-
-.step__num {
-  font-size: 0.8rem;
-  letter-spacing: 0.14em;
-}
-
-.card {
-  border-radius: 10px;
-}
-
-/* -------------------------------------------------------------- 23.4 Stat */
-.stat {
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
-}
-
-.section--navy .stat,
-.hero .stat {
-  border-top-color: var(--line-light);
-}
-
-.stat__num {
-  font-family: var(--serif);
-  font-weight: 700;
-  color: var(--gold-deep);
-  letter-spacing: -0.01em;
-}
-
-.section--navy .stat__num,
-.hero .stat__num {
-  color: var(--gold);
-}
-
-/* ----------------------------------------------------------- 23.5 Buttons */
-.btn {
-  font-family: var(--sans);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  border-radius: var(--radius);
-}
-
-.btn--gold {
-  color: var(--navy-deep);
-}
-
-.btn--gold:hover {
-  background: var(--gold-light);
-  color: var(--navy-deep);
-}
-
-/* --------------------------------------------------------- 23.6 Fit lists */
-/* Terracotta earns its keep here and nowhere else. */
-.crosslist li::before,
-.crosslist li::after {
-  background: var(--terracotta);
-}
-
-.field label .req,
-.req {
-  color: var(--terracotta);
-}
-
-/* ------------------------------------------------------------ 23.7 Ground */
-/* The old warm cream band is now the concept's crisp steel. */
-.section--cream {
-  background: var(--cream);
-}
-
-.hero {
-  background: var(--navy-deep);
-}
-
-.cta-band {
-  background: var(--navy-deep);
-}
-
-.site-footer {
-  background: var(--navy);
-}
-
-/* ------------------------------------------------------- 23.8 Media panel */
-/* Photography carried over from the concept. */
+/* ------------------------------------------------------- 17. Media figures */
 .figure {
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
-  margin: 0;
 }
 
 .figure img {
   width: 100%;
   aspect-ratio: 3 / 2;
   object-fit: cover;
-  display: block;
 }
 
 .figure figcaption {
-  padding: 14px 20px;
-  font-size: 0.8rem;
-  color: var(--ice);
-  background: var(--navy);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-xs);
+  color: var(--steel);
+  background: var(--navy-800);
 }
 
-/* The concept's display scale assumes a full-bleed hero. Where the hero is
-   split with the application form, the headline column is roughly half as
-   wide, so the same clamp runs to four lines and pushes the lede out of the
-   first screen. */
-.split--hero-form h1 {
-  font-size: clamp(2.1rem, 1.4rem + 2.2vw, 3.5rem);
-  line-height: 1.06;
+/* ---------------------------------------------------------- 18. CAGE banner */
+.cage-banner {
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  color: var(--steel);
+  background: var(--navy-700);
+  border-radius: var(--radius-md);
 }
 
-/* The included strip was built for the old five-part package. The offer now
-   has six deliverables, so a hard five-column grid stranded the sixth on its
-   own row. Two rows of three in the middle range, six across when there's
-   room. */
-@media (min-width: 720px) {
-  .included-strip {
-    grid-template-columns: repeat(3, 1fr);
+@media (min-width: 760px) {
+  .cage-banner {
+    grid-template-columns: auto 1fr;
+    gap: var(--space-6);
   }
 }
 
-@media (min-width: 1040px) {
-  .included-strip {
-    grid-template-columns: repeat(6, 1fr);
+.cage-code {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.cage-code span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgba(226, 232, 239, 0.7);
+  margin-bottom: var(--space-2);
+}
+
+/* --------------------------------------------------------- 19. Closing CTA */
+.closing-cta {
+  position: relative;
+  padding-block: clamp(var(--space-10), 9vw, var(--space-16));
+  color: var(--steel);
+  background: var(--navy-900);
+  overflow: hidden;
+  text-align: center;
+}
+
+.closing-cta .container {
+  position: relative;
+  z-index: 1;
+}
+
+.closing-cta h2 {
+  font-size: var(--text-2xl);
+  color: var(--paper);
+  max-width: 24ch;
+  margin-inline: auto;
+}
+
+.closing-cta .lede {
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------- 20. Footer */
+.site-footer {
+  padding-block: var(--space-8) var(--space-6);
+  color: rgba(226, 232, 239, 0.72);
+  background: var(--navy-800);
+  font-size: var(--text-sm);
+}
+
+.site-footer a {
+  color: var(--steel);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--gold-soft);
+  text-decoration: underline;
+}
+
+.footer-grid {
+  display: grid;
+  gap: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line-dark);
+}
+
+@media (min-width: 820px) {
+  .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: var(--space-8);
   }
 }
 
-/* The base `img` rule sets max-width but never height, so the width/height
-   HTML attributes (which are there to reserve layout space and avoid shift)
-   applied as a literal pixel height. A 2752x1536 photo rendered 1536px tall
-   and ignored its aspect-ratio. */
-img {
-  height: auto;
+.footer-brand p {
+  max-width: 42ch;
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.footer-title {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper);
+  margin-bottom: var(--space-4);
+}
+
+.footer-links li {
+  margin-bottom: var(--space-3);
+}
+
+.footer-legal {
+  display: grid;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
+.footer-legal strong {
+  color: var(--paper);
+}
+
+.disclosure {
+  padding: var(--space-4) var(--space-5);
+  background: rgba(226, 232, 239, 0.05);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--steel);
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  justify-content: space-between;
+}
+
+/* --------------------------------------------------------------- 21. Reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s var(--transition), transform 0.6s var(--transition);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------- 22. Print */
+@media print {
+  .site-header,
+  .closing-cta,
+  .menu-toggle,
+  .button {
+    display: none !important;
+  }
+
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   24. Hero with the application form
+   ==========================================================================
+   The home page is where paid traffic lands, so the form sits in the first
+   screen beside the pitch rather than behind a click. The concept's photo and
+   scrim stay as the ground.
+   ========================================================================== */
+.hero:has(.hero-form) {
+  align-items: center;
+  min-height: 0;
+  padding-block: clamp(var(--space-8), 6vw, var(--space-12));
+}
+
+.hero-split {
+  display: grid;
+  gap: clamp(var(--space-6), 4vw, var(--space-10));
+  align-items: center;
+}
+
+@media (min-width: 1000px) {
+  /* A form needs more width than a column of prose. */
+  .hero-split {
+    grid-template-columns: 1fr 1.05fr;
+  }
+}
+
+/* The photo is busiest on the right, which is where the card now sits, so the
+   scrim needs to carry further across than the text-only hero needed. */
+.hero:has(.hero-form) .hero-media::after {
+  background: linear-gradient(
+      100deg,
+      var(--navy-900) 10%,
+      rgba(6, 23, 44, 0.94) 55%,
+      rgba(6, 23, 44, 0.75) 100%
+    ),
+    linear-gradient(to top, var(--navy-900), transparent 55%);
+}
+
+.hero:has(.hero-form) .hero-content {
+  max-width: none;
+}
+
+.hero:has(.hero-form) h1 {
+  font-size: clamp(2.2rem, 1.5rem + 2.6vw, 3.7rem);
+}
+
+.hero:has(.hero-form) .stat-row {
+  display: none;
+}
+
+/* --- the card --- */
+.hero-form {
+  padding: clamp(var(--space-5), 3vw, var(--space-7));
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  /* The card resets everything the dark hero set on its children. */
+  color: var(--ink);
+}
+
+.hero-form__title {
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.75rem);
+  line-height: 1.2;
+  color: var(--navy-800);
+  margin-bottom: var(--space-2);
+}
+
+/* --muted is too light for small print on white. */
+.hero-form__note {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: #3d4854;
+  margin-bottom: var(--space-5);
+}
+
+/* --gold is tuned for navy grounds; on the white card it needs the deeper
+   shade to stay readable. */
+.hero-form .eyebrow {
+  color: var(--gold-deep);
+  margin-bottom: var(--space-2);
+}
+
+.hero-form .eyebrow::before {
+  display: none;
+}
+
+.hero-form .checkbox {
+  color: #3d4854;
+}
+
+/* On a narrow card two columns of inputs cramp; the container query keeps the
+   decision with the card rather than the viewport. */
+.hero-form {
+  container-type: inline-size;
+}
+
+.hero-form .form-grid--2 {
+  grid-template-columns: 1fr;
+}
+
+/* 27rem, not 30: at the default column split the card's content box lands at
+   464px, so a 30rem (480px) trigger missed by 16px and the form stayed one
+   column and 1536px tall. */
+@container (min-width: 27rem) {
+  .hero-form .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Browsers without :has() get the plain concept hero plus the card stacked
+   underneath, which is still usable. */
+@supports not selector(:has(*)) {
+  .hero-split {
+    grid-template-columns: 1fr;
+  }
 }

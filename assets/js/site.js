@@ -1,39 +1,27 @@
-/* Fed Advisor Solutions — site behaviour
+/* Fed Advisor Solutions — site behaviour.
    Vanilla JS, no dependencies, no build step. */
 (function () {
   'use strict';
 
-  /* ---------------------------------------------------------------- nav */
-  var toggle = document.querySelector('.nav-toggle');
-  var nav = document.getElementById('primary-nav');
+  /* ------------------------------------------------------------ mobile nav */
+  var menuButton = document.querySelector('[data-menu-toggle]');
+  var menu = document.querySelector('[data-nav-links]');
 
-  if (toggle && nav) {
-    toggle.addEventListener('click', function () {
-      var open = nav.classList.toggle('is-open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (menuButton && menu) {
+    menuButton.addEventListener('click', function () {
+      var open = menu.classList.toggle('is-open');
+      menuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
 
-    nav.addEventListener('click', function (e) {
+    menu.addEventListener('click', function (e) {
       if (e.target.closest('a')) {
-        nav.classList.remove('is-open');
-        toggle.setAttribute('aria-expanded', 'false');
+        menu.classList.remove('is-open');
+        menuButton.setAttribute('aria-expanded', 'false');
       }
     });
   }
 
-  /* Mark the current page in the nav */
-  var here = location.pathname.split('/').pop() || 'index.html';
-  Array.prototype.forEach.call(
-    document.querySelectorAll('.nav__link'),
-    function (link) {
-      var target = link.getAttribute('href');
-      if (target === here || (here === 'index.html' && target === '/')) {
-        link.setAttribute('aria-current', 'page');
-      }
-    }
-  );
-
-  /* ------------------------------------------------------------- reveal */
+  /* --------------------------------------------------------------- reveals */
   var revealables = document.querySelectorAll('.reveal');
   if (revealables.length) {
     if ('IntersectionObserver' in window) {
@@ -41,7 +29,7 @@
         function (entries) {
           entries.forEach(function (entry) {
             if (entry.isIntersecting) {
-              entry.target.classList.add('is-in');
+              entry.target.classList.add('is-visible');
               io.unobserve(entry.target);
             }
           });
@@ -53,40 +41,37 @@
       });
     } else {
       Array.prototype.forEach.call(revealables, function (el) {
-        el.classList.add('is-in');
+        el.classList.add('is-visible');
       });
     }
   }
 
-  /* -------------------------------------------------------- chart bars */
-  /* Bars start at height 0 and grow to their data-height when scrolled in. */
-  var bars = document.querySelectorAll('.bar__fill[data-height]');
-  if (bars.length) {
-    var grow = function (el) {
-      el.style.height = el.getAttribute('data-height');
-    };
-    if ('IntersectionObserver' in window) {
-      var barIo = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              grow(entry.target);
-              barIo.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.25 }
-      );
-      Array.prototype.forEach.call(bars, function (el) {
-        el.style.height = '0%';
-        barIo.observe(el);
-      });
-    } else {
-      Array.prototype.forEach.call(bars, grow);
-    }
-  }
+  /* ------------------------------------------------------------------- FAQ */
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.faq-question'),
+    function (button) {
+      button.addEventListener('click', function () {
+        var item = button.closest('.faq-item');
+        var wasOpen = item.classList.contains('is-open');
 
-  /* ---------------------------------------------------------- the form */
+        Array.prototype.forEach.call(
+          document.querySelectorAll('.faq-item'),
+          function (faq) {
+            faq.classList.remove('is-open');
+            var q = faq.querySelector('.faq-question');
+            if (q) q.setAttribute('aria-expanded', 'false');
+          }
+        );
+
+        if (!wasOpen) {
+          item.classList.add('is-open');
+          button.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
+  );
+
+  /* ------------------------------------------------------------------ form */
   var form = document.getElementById('apply-form');
   if (!form) return;
 
@@ -134,7 +119,9 @@
       })
       .then(function (result) {
         if (!result.ok) {
-          throw new Error(result.body && result.body.error ? result.body.error : 'Request failed');
+          throw new Error(
+            result.body && result.body.error ? result.body.error : 'Request failed'
+          );
         }
         form.reset();
         window.location.href = 'thank-you.html';
@@ -142,8 +129,8 @@
       .catch(function (err) {
         console.error('[apply]', err);
         say(
-          'Something went wrong sending your application. Please email ' +
-            'contact@fedadvisorsolutions.com and we will pick it up from there.',
+          'Something went wrong sending your application. Please call 706-407-2744 ' +
+            'or email partners@fedadvisorsolutions.com and we will pick it up from there.',
           'error'
         );
         if (submit) {

@@ -12,19 +12,50 @@ and `/api/zoho-sync` inspects and repairs the Zoho CRM mirror.
 
 ## Pages
 
-| File | Purpose |
-|---|---|
-| `index.html` | Home — hero, market stats, problem, solution, the five components, how it works |
-| `opportunity.html` | The federal market, why it stays under-served, the agent's problem |
-| `program.html` | Deep dive on all five components (website, leads, CRM, training, analysis platform) |
-| `pricing.html` | Three pricing tiers, the economics chart, FAQ |
-| `apply.html` | Fit checklist, three-step process, application form |
-| `thank-you.html` | Post-submission confirmation (`noindex`) |
+| File | Nav label | Purpose |
+|---|---|---|
+| `index.html` | Opportunity | Photo hero with the application form beside the pitch, credential strip, offer snapshot, why-this-market, live shadowing, the six-part launch system, who it's for |
+| `offer.html` | The Package | The six deliverables, the apprenticeship advantage, the four-phase launch path, pricing, FAQ |
+| `workforce.html` | Who You'll Serve | The federal workforce by profession, the CAGE banner, the three decisions every household faces |
+| `apply.html` | Apply Now | Fit checklist, four phases, the application form |
+| `thank-you.html` | — | Post-submission confirmation (`noindex`) |
 
-Shared assets: `assets/css/site.css`, `assets/js/site.js`, `assets/img/advisor-hero.jpg`.
+Shared assets: `assets/css/site.css`, `assets/js/site.js`, and three photographs in
+`assets/img/`.
+
+`opportunity.html`, `program.html`, and `pricing.html` were retired when the site moved
+to this structure. They 301-redirect via `vercel.json` — **check any live ad
+destinations still pointing at them.**
 
 The header and footer are duplicated in each page rather than templated — there is no
-build step, so **a change to the nav or footer has to be made in all six files.**
+build step, so **a change to the nav or footer has to be made in all five files.**
+They were generated from one shared definition; this confirms they still match:
+
+```bash
+for f in index offer workforce apply thank-you; do sed -n '/<ul class="nav-links"/,/<\/ul>/p' $f.html | sed 's/ aria-current="page"//' | shasum | cut -d" " -f1; done | sort -u | wc -l
+```
+
+That should print `1`.
+
+## Design system
+
+Adopted from the `update/` concept (kept locally, gitignored), with three things
+tightened:
+
+- **Palette.** The concept shipped 31 hex values including twelve near-identical navies
+  and four golds. Tokens at the top of `site.css` are now a four-step navy ramp, two
+  golds, one accent and five neutrals. Terracotta has one job: not-a-fit crosses and
+  required-field marks.
+- **Type.** Boska carries headings, display numerals and the gold italic accent;
+  Satoshi carries everything else. The concept put the display face on 29 of its 30
+  `font-family` rules. Both load from Fontshare via `preconnect` + `link`, not a
+  render-blocking CSS `@import`.
+- **Components.** `pillar`, `system-card`, `opportunity-row`, `profession-card` and
+  `credential-item` were five names for one pattern; they are one `.card` with
+  `--navy` / `--plain` / `--media` modifiers.
+
+The concept's dark-mode toggle was dropped — it doubled the colour surface and was the
+main source of one-off colour values.
 
 ---
 
@@ -305,20 +336,29 @@ The deck said two different things: the package and pricing slides say **50 lead
 launch** with reorders at $50/lead, while the CRM slide and the economics chart
 assumed **100 leads per month**.
 
-The site now uses one figure throughout: **50 leads delivered with the launch
-package, reordered at $50/lead pass-through, 50-lead minimum.** The 100/month
-assumption is gone.
+The site now uses one figure throughout: **50 warm leads delivered with the launch
+package, with 50-lead reorders at $3,000.** The 100/month assumption is gone.
 
-The economics scenarios on `pricing.html` are driven by **rollovers closed per month**
-(2 / 3 / 4), not by a lead volume — so the $216K / $324K / $432K figures stand on
-their own and don't depend on any particular pipeline size. If you later settle on a
-recurring monthly lead count, the places to update are:
+## The offer, as stated on the site
 
-- `pricing.html` — the "Lead Supply" tile in the economics section and the footnote below the chart
-- `pricing.html` — the "Additional Leads" price card
-- `program.html` — the "50 Fresh Federal Leads" section
-- `index.html` — the hero, the trust strip, the solution and component cards, and the meta description
-- `apply.html` — step 03 and the meta description
+- **$5,000** one-time launch investment, plus **$199/month** hosting and maintenance
+- **$3,000** for a 50-lead reorder (Package B)
+- Six deliverables: FRC℠ designation training, in-house presentation training, live
+  veteran-agent observation, the branded advisor website, the Fed Advisor Gap Analyzer,
+  and the first 50 warm federal employee leads
+- Federal Benefits Exchange LLC, CAGE Code 22EW0
+
+This replaced an earlier offer ($4,995 + $300/month, reorders at $50/lead, including a
+CRM and predictive dialer). The **"live in 14 days"** promise was dropped everywhere it
+appeared: the programme now gates leads on readiness instead — *"your leads do not
+arrive before you are prepared to work them"* — which is both what it says and a
+narrower claim.
+
+To change the price, the places to edit are:
+
+- `offer.html` — both price cards and the hero note
+- `index.html` — the offer snapshot and the hero CTA label
+- the meta descriptions on `index.html` and `offer.html`
 
 ---
 
