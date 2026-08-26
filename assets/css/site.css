@@ -1,44 +1,14 @@
 /* ==========================================================================
    Self-hosted webfonts
    ==========================================================================
-   The concept loaded these from Fontshare with
-     f[]=satoshi@400,500,600,700&f[]=boska@500,700
-   which silently returns Clash Grotesk in place of Boska — verified: Boska
-   comes back correctly when requested on its own, and is replaced whenever it
-   is paired with Satoshi. So every heading fell back to a system serif and the
-   display face never rendered at all.
+   Satoshi only, self-hosted. Headings use Times New Roman, matching what the
+   concept actually renders: it asks Fontshare for Boska alongside Satoshi, and
+   that pairing silently returns Clash Grotesk instead, so Boska has never
+   loaded there.
 
-   Self-hosting removes that, plus the two extra DNS/TLS handshakes and the
-   render-blocking @import. 244KB total, all woff2.
+   Self-hosting Satoshi removes the render-blocking @import and two extra
+   DNS/TLS handshakes. Four faces, ~103KB.
    ========================================================================== */
-@font-face {
-  font-family: 'Boska';
-  src: url('../fonts/boska-500.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Boska';
-  src: url('../fonts/boska-700.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Boska';
-  src: url('../fonts/boska-500-italic.woff2') format('woff2');
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Boska';
-  src: url('../fonts/boska-700-italic.woff2') format('woff2');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
 @font-face {
   font-family: 'Satoshi';
   src: url('../fonts/satoshi-500.woff2') format('woff2');
@@ -138,7 +108,7 @@ li {
 
 ::selection {
   color: #fff;
-  background: var(--color-terracotta);
+  background: var(--color-navy);
 }
 
 :focus-visible {
@@ -174,7 +144,11 @@ li {
 
 /* ===================== concept style.css ==================== */
 :root {
-  --font-display: "Boska", "Times New Roman", serif;
+  /* The concept named Boska, but Fontshare silently substitutes it whenever
+     it is requested alongside Satoshi, so update/ has always rendered the
+     Times fallback. Matching that deliberately, and not paying for a webfont
+     that never arrives. */
+  --font-display: "Times New Roman", Times, serif;
   --font-body: "Satoshi", "Helvetica Neue", sans-serif;
   --text-xs: clamp(0.75rem, 0.71rem + 0.18vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.83rem + 0.2vw, 1rem);
@@ -328,8 +302,8 @@ body {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-6);
   color: #fff;
-  background: var(--color-terracotta);
-  border: 1px solid var(--color-terracotta);
+  background: var(--color-navy);
+  border: 1px solid var(--color-navy);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   font-weight: 700;
@@ -339,8 +313,8 @@ body {
 }
 
 .button:hover {
-  background: var(--color-terracotta-deep);
-  box-shadow: 0 10px 24px rgba(168, 75, 47, 0.22);
+  background: var(--color-navy-mid);
+  box-shadow: 0 10px 24px rgba(11, 37, 69, 0.22);
   transform: translateY(-2px);
 }
 
@@ -704,7 +678,7 @@ body {
 
 .offer-clarity-band {
   color: #fff;
-  background: var(--color-terracotta);
+  background: var(--color-navy);
 }
 
 .offer-clarity-grid {
@@ -936,7 +910,7 @@ body {
 }
 
 #launch-system .section-heading .eyebrow {
-  color: var(--color-terracotta-deep);
+  color: var(--color-navy);
 }
 
 #launch-system .section-heading {
@@ -1558,7 +1532,7 @@ body {
 }
 
 #package .section-heading .eyebrow {
-  color: var(--color-terracotta-deep);
+  color: var(--color-navy);
 }
 
 #package .section-heading em {
@@ -1717,7 +1691,7 @@ body {
   color: #fff;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 48%),
-    var(--color-terracotta-deep);
+    var(--color-navy-deep);
 }
 
 #faq .section-heading .eyebrow,
@@ -2007,7 +1981,7 @@ body {
   align-items: center;
   padding: clamp(var(--space-10), 7vw, var(--space-20));
   color: #fff;
-  background: var(--color-terracotta);
+  background: var(--color-navy);
 }
 
 .contact-panel h2 {
