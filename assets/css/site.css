@@ -1627,16 +1627,19 @@ ul {
   }
 }
 
-/* The photo is busiest on the right, which is where the card now sits, so the
-   scrim needs to carry further across than the text-only hero needed. */
+/* The form is an opaque white card, so it supplies its own contrast and needs
+   no scrim behind it. Only the left-hand copy does. Weighting the gradient to
+   the left keeps the headline readable and lets the photograph actually show
+   on the right, which is the whole point of the concept's hero. */
 .hero:has(.hero-form) .hero-media::after {
   background: linear-gradient(
       100deg,
-      var(--navy-900) 10%,
-      rgba(6, 23, 44, 0.94) 55%,
-      rgba(6, 23, 44, 0.75) 100%
+      var(--navy-900) 0%,
+      rgba(6, 23, 44, 0.92) 32%,
+      rgba(6, 23, 44, 0.55) 55%,
+      rgba(6, 23, 44, 0.15) 100%
     ),
-    linear-gradient(to top, var(--navy-900), transparent 55%);
+    linear-gradient(to top, rgba(6, 23, 44, 0.85), transparent 35%);
 }
 
 .hero:has(.hero-form) .hero-content {
@@ -1644,11 +1647,27 @@ ul {
 }
 
 .hero:has(.hero-form) h1 {
-  font-size: clamp(2.2rem, 1.5rem + 2.6vw, 3.7rem);
+  font-size: clamp(2.4rem, 1.5rem + 3.1vw, 4.3rem);
 }
 
+/* Two-up rather than four-across: the left column is half the width the
+   text-only hero had. */
 .hero:has(.hero-form) .stat-row {
-  display: none;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.hero:has(.hero-form) .stat-row .stat + .stat {
+  padding-left: 0;
+  border-left: 0;
+}
+
+@media (min-width: 620px) {
+  .hero:has(.hero-form) .stat-row .stat:nth-child(even) {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--line-dark);
+  }
 }
 
 /* --- the card --- */
