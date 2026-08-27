@@ -346,7 +346,7 @@ package, and a standalone 50-lead package at $3,000.** The 100/month assumption 
 - The two packages are independent entry points, not a sequence. Package A is
   for agents new to the federal market; Package B is for agents already working
   federal clients who need pipeline only. Neither requires the other.
-- Six deliverables: FRC℠ designation training, in-house presentation training, live
+- Six deliverables: federal benefits training, in-house presentation training, live
   veteran-agent observation, the branded advisor website, the Fed Advisor Gap Analyzer,
   and the first 50 warm federal employee leads
 - Federal Benefits Exchange LLC, CAGE Code 22EW0
