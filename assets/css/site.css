@@ -179,6 +179,8 @@ li {
   --color-navy-deep: #06172c;
   --color-gold: #c9a227;
   --color-gold-light: #e4cb72;
+  /* For gold text on light grounds, where #c9a227 is only 2.13:1. */
+  --color-gold-deep: #8a6f1a;
   --color-cream: #e2e8ef;
   --color-paper: #f4f7fa;
   --color-terracotta: #a84b2f;
@@ -2857,4 +2859,107 @@ body {
     grid-template-columns: 3rem minmax(0, 1fr);
     gap: var(--space-4);
   }
+}
+
+/* ==========================================================================
+   Contrast fixes on the navy launch-system and package grounds
+   ==========================================================================
+   Three rules were written for the gold ground these sections used to have and
+   were missed when they went navy, leaving navy text on navy. Found by
+   sweeping every text node against its effective background rather than by eye.
+   ========================================================================== */
+
+/* The italic half of the heading — an <em>, not the h2 — was navy-deep at
+   1.38:1. */
+#launch-system .section-heading em,
+#package .section-heading em,
+#launch-system .system-intro em,
+#package .system-intro em {
+  color: var(--color-gold-light);
+}
+
+/* The closing line under the cards: 1.31:1 for the sentence, 1.38:1 for its
+   bold opening. */
+#launch-system .system-closing p,
+#package .system-closing p {
+  color: rgba(226, 232, 239, 0.86);
+}
+
+#launch-system .system-closing strong,
+#package .system-closing strong {
+  color: #fff;
+}
+
+/* The credential strip sits on gold. Its description text was navy at 72%
+   opacity, which lands at 3.92:1 — just under the 4.5:1 needed at that size.
+   Full-strength navy on the same gold is 6.36:1. */
+.credential-item span {
+  color: var(--color-navy);
+}
+
+/* .opportunity-row p uses --color-muted, which is tuned for the light ground it
+   appears on elsewhere. Inside a dark section it lands at 3.05:1. */
+.dark-section .opportunity-row p,
+.section--navy .opportunity-row p,
+#market-case .opportunity-row p {
+  color: rgba(226, 232, 239, 0.82);
+}
+
+/* ==========================================================================
+   Components carried onto light grounds
+   ==========================================================================
+   .eyebrow, .opportunity-number and .text-link were coloured for the dark
+   sections the concept used almost throughout. apply.html and thank-you.html
+   put them on the light page ground, where they fall well under AA.
+   ========================================================================== */
+
+/* Terracotta on navy-deep is 3.18:1. Gold on the same ground is over 5:1. */
+.page-hero .eyebrow {
+  color: var(--color-gold);
+}
+
+/* Gold on the light ground is 2.13:1; the deeper gold clears AA. */
+.opportunity-number {
+  color: var(--color-gold-deep, #8a6f1a);
+}
+
+.dark-section .opportunity-number,
+.section--navy .opportunity-number,
+.page-hero .opportunity-number,
+.hero .opportunity-number,
+.offer-snapshot .opportunity-number,
+.offer-hero .opportunity-number,
+.workforce-teaser .opportunity-number,
+.closing-cta .opportunity-number,
+.contact-panel .opportunity-number,
+#market-case .opportunity-number,
+#who-it-is-for .opportunity-number,
+#launch-system .opportunity-number,
+#package .opportunity-number,
+#faq .opportunity-number {
+  color: var(--color-gold-light);
+}
+
+/* gold-light on the light ground is 1.41:1 — effectively invisible. */
+.text-link {
+  color: var(--color-navy);
+  text-decoration-color: var(--color-gold-deep, #8a6f1a);
+}
+
+.dark-section .text-link,
+.section--navy .text-link,
+.page-hero .text-link,
+.hero .text-link,
+.offer-snapshot .text-link,
+.offer-hero .text-link,
+.workforce-teaser .text-link,
+.closing-cta .text-link,
+.contact-panel .text-link,
+#market-case .text-link,
+#who-it-is-for .text-link,
+#launch-system .text-link,
+#package .text-link,
+#faq .text-link {
+  color: var(--color-gold-light);
+  text-decoration-color: var(--color-gold);
 }
