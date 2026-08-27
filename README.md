@@ -337,12 +337,15 @@ launch** with reorders at $50/lead, while the CRM slide and the economics chart
 assumed **100 leads per month**.
 
 The site now uses one figure throughout: **50 warm leads delivered with the launch
-package, with 50-lead reorders at $3,000.** The 100/month assumption is gone.
+package, and a standalone 50-lead package at $3,000.** The 100/month assumption is gone.
 
 ## The offer, as stated on the site
 
 - **$5,000** one-time launch investment, plus **$199/month** hosting and maintenance
-- **$3,000** for a 50-lead reorder (Package B)
+- **$3,000** for 50 warm federal leads (Package B)
+- The two packages are independent entry points, not a sequence. Package A is
+  for agents new to the federal market; Package B is for agents already working
+  federal clients who need pipeline only. Neither requires the other.
 - Six deliverables: FRC℠ designation training, in-house presentation training, live
   veteran-agent observation, the branded advisor website, the Fed Advisor Gap Analyzer,
   and the first 50 warm federal employee leads
