@@ -109,7 +109,7 @@
       .catch((err) => {
         console.error("[apply]", err);
         say(
-          "Something went wrong sending your application. Please call 706-407-2744 " +
+          "Something went wrong sending your application. Please call 803-220-3991 " +
             "or email contact@fedadvisorsolutions.com and we will pick it up from there.",
           "error"
         );
