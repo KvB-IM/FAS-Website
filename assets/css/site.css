@@ -3077,3 +3077,24 @@ body {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   Package cards on the home page
+   ==========================================================================
+   The home page now carries the same two-package block as The Package page,
+   so it reuses #investment and inherits that section's navy ground and card
+   treatment wholesale. Only two things are new here.
+
+   The dark-ground .text-link override: the base .text-link resolves to navy,
+   which is invisible on #investment's navy-deep. Every other dark section on
+   the site already has this fix in a grouped selector; #investment never
+   needed it until the home page put a link inside it.
+   ========================================================================== */
+#investment .text-link {
+  color: var(--color-gold-light);
+  text-decoration-color: var(--color-gold);
+}
+
+.investment-footnote {
+  margin-top: var(--space-8);
+}
